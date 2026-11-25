@@ -1,0 +1,28 @@
+# Dependencias (se reinstalan con npm install)
+node_modules/
+
+# Variables de entorno y secretos: NUNCA se suben (el repositorio es público)
+.env
+.env.*
+!.env.example
+
+# Expo y compilaciones
+.expo/
+dist/
+web-build/
+*.apk
+*.aab
+
+# Logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.log
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Configuración personal de Claude Code
+.claude/settings.local.json
