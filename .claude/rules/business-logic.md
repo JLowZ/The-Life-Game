@@ -48,9 +48,9 @@ Si el equipo aprueba un valor provisional, regístralo antes en `DECISIONS.md`.
 - **Deshacer en 10 s:** revierte por completo con movimientos compensatorios. Después, el registro es definitivo (RN-DAY-07).
 
 ### Economía
-- **Hábito cumplido:** +Hojas +XP, una vez (`habit-reward:<occurrenceId>`).
+- **Hábito cumplido:** +Hojas +XP, una vez por marcado (`habit-reward:<occurrenceId>:<resolutionSeq>`; ver `DATA_MODEL.md` §5).
 - **Desafío completado** (por incumplimiento, normal o mini, o de recuperación): `floor(Hojas / 2)` + **20 % de la XP** del hábito (`challenge-reward:<challengeId>`). **No** cambia la ocurrencia ni el porcentaje (RN-DES-06).
-- **Misión secundaria:** +20 Hojas +20 XP, una vez; **máximo 3 por jornada**. La sugerencia es editable (RN-MIS-04).
+- **Misión secundaria:** +20 Hojas +20 XP, una vez; **máximo 3 por jornada** sin contar las abandonadas. Se abandona a mano o al cerrar la jornada, sin coste; no cuenta en el Mapa (P-58). La sugerencia es editable (RN-MIS-04).
 - **Recompensa real:** costo ≥ 20; canjes ilimitados.
 - El saldo nunca es negativo. Gastar no toca la XP ni el HP. La XP nunca baja. Nivel inicial 0; nivel derivado de la XP.
 

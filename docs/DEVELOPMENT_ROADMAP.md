@@ -15,12 +15,12 @@
 | Fase | Nombre | Entrega 1 | Estado |
 |---|---|---|---|
 | 0 | Análisis y harness | ✔ | **Revisada dos veces (2026-11-25). Solo falta subir el repositorio a GitHub.** |
-| 1 | Arquitectura y modelo de datos | ✔ | No iniciada |
-| 2 | Backend y conexión MySQL | ✔ (autenticación + respaldo) | No iniciada |
-| 3 | Persistencia local y configuración de Expo | ✔ | No iniciada |
-| 4 | Registro, autenticación y perfil | ✔ | No iniciada |
-| 5 | Home y HUD | ✔ | No iniciada |
-| 6 | Hábitos y programación | ✔ | No iniciada |
+| 1 | Arquitectura y modelo de datos | ✔ | **Aprobada (2026-11-26)** |
+| 2 | Backend y conexión MySQL | **✘ Después de la entrega (P-57)** | Aplazada: se hace cuando la app funcione en local |
+| 3 | Persistencia local y configuración de Expo | ✔ | **Hecha (2026-11-26).** Probada en Expo Go (Android) |
+| 4 | Registro, autenticación y perfil | ✔ | **Hecha y probada en Expo Go (2026-11-27).** Añadidos: registro como asistente (R-34) y Ajustes (P-61) |
+| 5 | Home y HUD | ✔ | **Hecha y probada (2026-11-27)** sin los extras (mensaje de apertura y selector de ánimo). Engranaje en las cuatro pestañas |
+| 6 | Hábitos y programación | ✔ | **Hecha (2026-11-27).** Incluye la acreditación de Hojas y XP de los hábitos (adelantada de la Fase 8). Probada en Expo Go (2026-11-27). R-35 aprobada |
 | 7 | Estado de ánimo, desafíos y mini desafíos | ✔ | No iniciada |
 | 8 | HP, XP, Hojas de mate y progresión | ✔ | No iniciada |
 | 9 | Mapa y cierre diario | ✔ | No iniciada |
@@ -29,8 +29,11 @@
 | 12 | Compilación y distribución | APK opcional | No iniciada |
 
 ```text
-F0 → F1 → F2 → F3 → F4 → F5 → F6 → F7 → F8 → F9 → F10 → F11 → F12      (orden mantenido, P-46)
+Entrega 1:  F0 → F1 → F3 → F4 → F5 → F6 → F7 → F8 → F9 (→ F10 si da tiempo)
+Después:    F2 (backend con los datos del servidor del profesor) → F11 → F12
 ```
+
+> **P-57 (2026-11-26):** el profesor indicó que la Entrega 1 **no lleva backend**. La Fase 2 sale de la entrega y la Fase 4 hace el registro y el inicio de sesión **locales**. El resto del orden se mantiene (P-46).
 
 ---
 
@@ -42,12 +45,12 @@ F0 → F1 → F2 → F3 → F4 → F5 → F6 → F7 → F8 → F9 → F10 → F1
 
 | Día | Bloque | Resultado verificable |
 |---|---|---|
-| **Mié 25** | Cierre de la Fase 0 + GitHub + **Fase 1** | Repositorio en GitHub; modelo y API de la entrega aprobados |
-| **Jue 26** | **Fases 2 y 3** | Backend con health, registro, inicio y cierre de sesión. App en TypeScript con Expo Router, SQLite, Zustand y Jest en Expo Go |
-| **Vie 27** | **Fases 4 y 5** | Registro e inicio de sesión reales, onboarding mínimo (propósito y metas), avatar fijo, Home con **HUD** |
+| **Mié 25** | Cierre de la Fase 0 + GitHub | Repositorio en GitHub |
+| **Jue 26** | **Fases 1 y 3** (sin Fase 2, P-57) | Modelo ER y DDL SQLite aprobados. App en TypeScript con Expo Router, SQLite (migración `001`), Zustand, configuración de juego y Jest en Expo Go |
+| **Vie 27** | **Fases 4 y 5** | Registro e inicio de sesión **locales**, onboarding mínimo (propósito y metas), avatar fijo, Home con **HUD** |
 | **Sáb 28** | **Fases 6 y 7** | Crear hábitos y **asignarlos a días**; marcarlos con deshacer; **desafíos por incumplimiento** (72 h), **desafíos de recuperación** por cada vida perdida y **misiones secundarias** (pantalla Desafíos) |
 | **Dom 29** | **Fases 8 y 9** | **Recompensas** (Hojas, XP, niveles) y HP conectados; **Mapa** con programación e historial; cierre a las 04:00, Día Finalizado con deshacer y reconciliación |
-| **Lun 30** (mañana) | **Pruebas + extras** | Prueba completa en Android. Extras si da tiempo, en este orden: Tienda de recompensas reales → ánimo + mini desafío + mensajes → Superdesafío y bloqueos a 0 HP → respaldo → pulido pixel art → APK |
+| **Lun 30** (mañana) | **Pruebas + extras** | Prueba completa en Android. Extras si da tiempo, en este orden: Tienda de recompensas reales → ánimo + mini desafío + mensajes → Superdesafío y bloqueos a 0 HP → pulido pixel art → APK |
 
 > Las **misiones secundarias** se implementan en la **Fase 7**, junto a la pantalla Desafíos donde viven, y no en la Fase 10. No cambia el orden de las fases (P-46): solo dónde cae esa funcionalidad.
 
@@ -64,11 +67,10 @@ F0 → F1 → F2 → F3 → F4 → F5 → F6 → F7 → F8 → F9 → F10 → F1
 
 - **Objetivo:** aprobar el modelo y el contrato de la API de la Entrega 1.
 - **Entregables:**
-  - `DATA_MODEL.md` aprobado;
-  - DDL de MySQL (`users`, `auth_sessions`, `user_backups`) y esquema SQLite v1, **para revisión**;
-  - contrato de la API (§5.2 de `ARCHITECTURE.md`) cerrado;
-  - formato de la instantánea de respaldo;
+  - `DATA_MODEL.md` v1.3 aprobado, con el diagrama entidad-relación;
+  - esquema SQLite v1 (`docs/schema/sqlite_v1.sql`), **para revisión**;
   - recomendaciones R aprobadas (P-55).
+  - **Pasan a la Fase 2 (P-57):** DDL de MySQL, contrato de la API y formato de la instantánea de respaldo.
 - **Dependencias:** Fase 0. P-36 queda abierta, pero no bloquea.
 - **Aceptación:** el equipo aprueba el modelo y el contrato; cada invariante INT-xx tiene asignado su mecanismo.
 - **Pruebas:** recorrido de los escenarios ESC-xx contra el modelo.
@@ -104,7 +106,7 @@ F0 → F1 → F2 → F3 → F4 → F5 → F6 → F7 → F8 → F9 → F10 → F1
   - `expo-sqlite` con migraciones locales y repositorios;
   - `expo-secure-store`;
   - **Zustand**;
-  - cliente de API (`EXPO_PUBLIC_API_URL`);
+  - ~~cliente de API (`EXPO_PUBLIC_API_URL`)~~ → pasa a la Fase 2 (P-57);
   - constantes de juego (R-21);
   - `jest-expo`.
   - Todas las dependencias con `npx expo install`.
@@ -122,10 +124,10 @@ F0 → F1 → F2 → F3 → F4 → F5 → F6 → F7 → F8 → F9 → F10 → F1
   - bienvenida → registro (con el aviso de privacidad) o inicio de sesión;
   - propósito → metas (texto + categoría) → perfil inicial (20 unidades de HP, 0 Hojas, 0 XP, nivel 0) → Home, con un **avatar fijo** (la creación del avatar llega después de la entrega);
   - restauración de la sesión;
-  - cierre de sesión con respaldo previo;
-  - enlace "¿Olvidaste tu contraseña?" al correo de soporte;
-  - restauración del respaldo en un dispositivo sin datos.
-- **Dependencias:** Fases 2 y 3. P-40 (correo de soporte; mientras tanto, texto "próximamente").
+  - cierre de sesión (sin borrar datos);
+  - enlace "¿Olvidaste tu contraseña?" al correo de soporte.
+  - **Entrega 1 (P-57):** todo local. Contraseña con SHA-256 + sal (`expo-crypto`) en `users`; `activeUserId` en SecureStore. El respaldo previo al cierre de sesión y la restauración en otro dispositivo llegan con el backend.
+- **Dependencias:** Fase 3. P-40 (correo de soporte; mientras tanto, texto "próximamente").
 - **Aceptación:** RN-AUTH-01 a RN-AUTH-09.
 - **Pruebas:** validaciones; flujo completo en el dispositivo; cerrar sesión e iniciarla de nuevo conserva el progreso.
 
@@ -198,6 +200,7 @@ F0 → F1 → F2 → F3 → F4 → F5 → F6 → F7 → F8 → F9 → F10 → F1
 ## Fase 9 — Mapa y cierre diario
 
 - **Entregables:**
+  - mover "Mis hábitos" (crear, editar y programar) de Inicio al Mapa (RN-HAB-03; decisión del equipo del 2026-11-27);
   - calendario con clasificación (color + icono);
   - detalle del día con su último ánimo y su mensaje;
   - tabla de programación;
@@ -267,5 +270,9 @@ Todas las demás decisiones de las Fases 1 a 9 están resueltas.
 | Fecha | Cambio |
 |---|---|
 | 2026-11-25 | Versión inicial (Fase 0). |
+| 2026-11-26 | P-57: Entrega 1 sin backend. La Fase 2 pasa a después de la entrega; el jueves se hacen las Fases 1 y 3; autenticación local en la Fase 4. |
+| 2026-11-27 | Fase 6: hábitos, programación semanal o por fechas, ocurrencias con horizonte de 0 días, marcado con deshacer en 10 s y acreditación de hábitos con libros de movimientos (adelantada de la Fase 8). |
+| 2026-11-27 | Fase 4 probada. Botón atrás en el registro (R-34), Ajustes (P-61), categoría general (P-59). Fase 5: HUD en la cabecera de las pestañas; mensaje de apertura y ánimo pasan a los extras del lunes. |
+| 2026-11-27 | Fase 3 probada en Expo Go. Fase 4 hecha: registro, inicio de sesión y onboarding locales, sesión con `Stack.Protected`. |
 | 2026-11-25 | v1.2: alcance mínimo de la Entrega 1 (sin cosméticos ni creación de avatar); misiones secundarias en la Fase 7; extras ordenados; matriz de decisiones actualizada. |
 | 2026-11-25 | v1.1: plan de la Entrega 1 (30-nov), alcance reducido por fase, recortes priorizados, backlog posterior y nueva matriz de decisiones. |

@@ -43,8 +43,10 @@ La Entrega 1 es **la base de la app**. Debe poder: **iniciar sesión, crear háb
 | | 6. **Misiones secundarias:** modal con felicitación, categoría, sugerencia editable, 20 Hojas + 20 XP, máximo 3 al día. |
 | | 7. **Mapa:** calendario con la programación y la trayectoria (clasificación por día). |
 | | 8. **Cierre de jornada:** a las 04:00, Día Finalizado (con deshacer) y reconciliación. Es necesario para que los hábitos sin marcar queden incumplidos y el Mapa tenga historial. |
-| **Si da tiempo** (en este orden) | Tienda de recompensas reales (canje, costo mínimo 20) · estado de ánimo + mini desafío + mensajes · Superdesafío y bloqueos a 0 HP (el HP nunca baja de 0 en ningún caso) · respaldo en el servidor · pulido pixel art basado en el logo · APK |
-| **Fuera** | Cosméticos y creación del avatar · hábitos recomendados (P-04) y recompensas predefinidas (P-05) · recordatorios (P-47) · sincronización por operaciones (Fase 11) · varias ocurrencias de un hábito por día (P-43) · IA |
+| **Si da tiempo** (en este orden) | Tienda de recompensas reales (canje, costo mínimo 20) · estado de ánimo + mini desafío + mensajes · Superdesafío y bloqueos a 0 HP (el HP nunca baja de 0 en ningún caso) · pulido pixel art basado en el logo · APK |
+| **Fuera** | Cosméticos y creación del avatar · hábitos recomendados (P-04) y recompensas predefinidas (P-05) · recordatorios (P-47) · backend y respaldo en el servidor (P-57) · sincronización por operaciones (Fase 11) · varias ocurrencias de un hábito por día (P-43) · IA |
+
+**Sin backend (P-57):** la Entrega 1 funciona solo en el teléfono. El registro y el inicio de sesión son locales y no hay respaldo en el servidor; ambos llegan después de la entrega.
 
 La app se entrega **funcional en Expo Go** (Android). Se procura que se vea bien, pero la prioridad es la lógica. Todo se diseña pensando en la expansión posterior.
 
@@ -110,7 +112,7 @@ Cierre (04:00 | Día Finalizado | reconciliación) → % → clasificación → 
 
 1. Pantalla de bienvenida.
 2. **Registro:** nombre de usuario (único), correo (único), contraseña (**mínimo 6 caracteres**) y aceptación del **aviso de privacidad** (C-25).
-3. El servidor crea la cuenta.
+3. Se comprueba que el usuario y el correo estén libres. **La cuenta se crea al final del paso 7**, junto con el propósito y las metas (R-34): así el usuario puede volver atrás y corregir sus datos.
 4. **Propósito personal.**
 5. **Metas:** texto libre + **categoría** (P-41, P-42).
 6. **Avatar:** en la Entrega 1 se usa un avatar pixel art fijo. La creación y personalización llegan después (C-20, P-38).
@@ -125,8 +127,14 @@ Cierre (04:00 | Día Finalizado | reconciliación) → % → clasificación → 
 
 ### 5.3. Cerrar sesión y recuperar la contraseña
 
+- **Cerrar sesión** está en **Ajustes** (§5.4).
+
 - **Cerrar sesión** respalda primero los datos. Si no hay conexión, avisa y **no borra** nada local (RN-AUTH-08).
 - **¿Olvidaste tu contraseña?** muestra un enlace al **correo de soporte** del equipo [Abierta P-40, urgente; mientras tanto: "Escríbenos a soporte (próximamente)"]. El equipo restablece la contraseña a mano tras verificar la identidad.
+
+### 5.4. Ajustes (RN-AUTH-10, P-61)
+
+Se abre con el **engranaje** del HUD, visible en las cuatro pestañas: nombre de usuario, metas (texto y categoría), volumen de la música (la música llega después, P-60) y Cerrar sesión.
 
 ---
 
@@ -293,7 +301,9 @@ Sin descuento inmediato · mensaje empático · reconoce que hay días difícile
 3. Recompensa fija: **20 Hojas + 20 XP**, mostrada antes de aceptar y acreditada una sola vez.
 
 - **Personalización:** la app sugiere una misión medible según sus metas y hábitos de esa categoría, y el usuario puede **modificarla** o escribir la suya.
-- **Máximo 3 misiones por jornada** (C-31).
+- **Máximo 3 misiones por jornada** (C-31); las abandonadas no cuentan (P-58).
+- Se pueden **abandonar** sin coste. Las que siguen aceptadas al cerrar la jornada se abandonan solas (RN-MIS-06).
+- **No cuentan** en el porcentaje del Mapa ni en la racha (RN-MIS-07).
 - Bloqueadas a 0 HP.
 
 ---
@@ -416,6 +426,7 @@ Fuera de las pestañas están bienvenida, registro, inicio de sesión, propósit
 
 | Versión | Fecha | Cambio |
 |---|---|---|
+| 1.4 | 2026-11-27 | Registro como asistente (R-34); Ajustes con engranaje (P-61); 17 categorías (P-59). |
 | 1.1 | 2026-11-25 | Derivada del Doc v1.0 con las actualizaciones de la Fase 0. |
 | 1.3 | 2026-11-25 | Segunda revisión: alcance mínimo de la Entrega 1 (sin cosméticos ni creación de avatar); desafíos con ½ Hojas + 20 % de XP; recuperación definida; curva de niveles; 16 categorías; 3 misiones al día, editables; recompensa real ≥ 20; deshacer Día Finalizado; contraseña de mínimo 6 caracteres. |
 | 1.2 | 2026-11-25 | Respuestas de la revisión de la Fase 0: alcance de la Entrega 1, Android, pixel art, hábitos medibles con categoría, plazo de 72 h + gracia, recompensa de los desafíos, ánimo cambiante, 0 HP, Superdesafío, misiones, deshacer y respaldo. |

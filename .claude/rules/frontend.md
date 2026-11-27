@@ -61,7 +61,8 @@ src/app (rutas) → src/screens · src/components → src/state → src/services
 ## 6. Navegación (Expo Router)
 
 - `(auth)`: welcome, login (usuario **o** correo), register (con el aviso de privacidad), onboarding (propósito → metas con categoría → avatar).
-- `(tabs)`: Home (`index`), `map`, `shop`, `challenges`, con el HUD siempre visible.
+- `(tabs)`: Home (`index`), `map`, `shop`, `challenges`, con el HUD siempre visible (cabecera `HudHeader`). El engranaje del HUD (en las cuatro pestañas) abre `settings` (P-61).
+- **Expo Router 58:** todo `Stack.Protected` lleva `redirectTo` con una ruta concreta; sin él, el destino por defecto puede ser un grupo sin `index` y provocar un bucle de redirecciones.
 - El `_layout.tsx` raíz redirige según la sesión y ejecuta la reconciliación al entrar y al volver al primer plano.
 - **A 0 HP:** las acciones bloqueadas (programar, marcar, comprar, canjear, misiones) se muestran **deshabilitadas con una explicación**. Desafíos y la personalización del avatar funcionan con normalidad.
 

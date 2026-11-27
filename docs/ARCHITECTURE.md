@@ -49,12 +49,12 @@
 | Estética | Pixel art basado en el **logo** y los bocetos del equipo; el acabado va después de la lógica. En la Entrega 1, avatar fijo y sin cosméticos | C-22, C-20 |
 | Repositorio | Monorepo público `JLowZ/The-Life-Game` | C-21 |
 
-## 3. Estado actual del repositorio (2026-11-25)
+## 3. Estado actual del repositorio (2026-11-26)
 
 | Elemento | Estado |
 |---|---|
 | Raíz | **Monorepo git** (rama `main`) conectado a `https://github.com/JLowZ/The-Life-Game`. Contiene el harness (`CLAUDE.md`, `docs/`, `.claude/rules/`), `LICENSE` (todos los derechos reservados), `.gitignore`, `.gitattributes`, `app/` y `backend/`. |
-| `app/` | Plantilla Expo en blanco en **JavaScript** (`App.js`, `index.js`) con SDK 58, RN 0.88.1 y React 19.3.0. Su `.git` original (solo el commit de la plantilla) se movió a una copia de seguridad fuera del proyecto y se eliminó `app/LICENSE` de Expo (C-32). `app.json` se llama `"app"` (se cambia en la Fase 3, P-44). |
+| `app/` | **Fase 3 hecha:** TypeScript estricto + Expo Router (`src/app`, `"main": "expo-router/entry"`), SDK 58, RN 0.88.1, React 19.3.0. `app.json`: "The Life Game", `the-life-game`, `com.techphic.thelifegame`, esquema `thelifegame`. SQLite con la migración `001`, SecureStore, Zustand, Jest (`jest-expo`) y ESLint (flat config). `App.js` e `index.js` de la plantilla se retiraron. |
 | `backend/` | Dependencias instaladas. Sin scripts, sin entrada (`main: index.js` no existe) y sin `.gitignore`. |
 
 **Migración de la app en la Fase 3** (sin reemplazar el proyecto):
@@ -118,7 +118,10 @@ app (rutas) → screens/components → state → services → domain
 ### 4.4. Persistencia local
 
 - `expo-sqlite`: todas las tablas del juego (`DATA_MODEL.md` §4). Cada caso de uso es **una transacción**.
-- `expo-secure-store`: el token de sesión. Nunca la contraseña.
+- `expo-secure-store`: el token de sesión (Entrega 1: el `activeUserId`, P-57). Nunca la contraseña.
+- **Transacciones:** `src/database/transaction.ts` (`runInTransaction`) pone en cola `withTransactionAsync`. No se usa `withExclusiveTransactionAsync` porque abre otra conexión donde no rige `PRAGMA foreign_keys` (documentación de expo-sqlite, SDK 58). Toda escritura del juego pasa por `runInTransaction`.
+- **Migraciones:** `src/database/migrate.ts` con `PRAGMA user_version`; la `001` es copia de `docs/schema/sqlite_v1.sql` y una prueba vigila que sigan iguales.
+- **Pruebas de la base de datos:** `src/database/testing/createTestDatabase.ts` implementa la misma interfaz con `node:sqlite` (Node 24), así Jest prueba contra SQLite real.
 - Preferencias no críticas: el kv-store de `expo-sqlite` o AsyncStorage (verificar la opción en SDK 58).
 - Las dependencias se instalan **siempre** con `npx expo install` y **tras aprobación**. Todas las citadas funcionan en Expo Go.
 
@@ -201,6 +204,8 @@ Convenciones (R-19):
 
 ### 7.1. Entrega 1 (R-29)
 
+> ⚠️ **Actualización 2026-11-26 (P-57):** la Entrega 1 **no lleva backend**. Registro e inicio de sesión son locales (SQLite) y no hay respaldo. Este flujo de respaldo se implementa **después** de la entrega, cuando exista el backend.
+
 ```text
 acción → dominio valida → transacción SQLite → Zustand se refresca → HUD
 cierre de jornada / cerrar sesión → backupNow(): serializa los datos → PUT /api/v1/backup
@@ -241,7 +246,7 @@ El reloj `now` se **inyecta** siempre en el dominio, para poder probarlo.
 
 | Caso de uso | Validaciones | Efectos |
 |---|---|---|
-| `completeHabit` | Jornada abierta, `PENDING`, HP > 0 | `COMPLETED`; +Hojas +XP (`habit-reward:`); nivel |
+| `completeHabit` | Jornada abierta, `PENDING`, HP > 0 | `COMPLETED`; `resolution_seq + 1`; +Hojas +XP (`habit-reward:<id>:<seq>`); nivel |
 | `markHabitMissed` | Ídem | `MISSED`; un desafío con la variante según el último ánimo y plazo de 72 h |
 | `undoMark` | ≤ 10 s desde `resolved_at` | Vuelve a `PENDING`; movimientos compensatorios; borra el desafío si aún no tiene efectos |
 | `setMood` | — | Nuevo `MoodEntry`; actualiza la variante de los desafíos `PENDING` de la jornada abierta |
@@ -263,7 +268,9 @@ El reloj `now` se **inyecta** siempre en el dominio, para poder probarlo.
    - El teléfono y el PC deben estar en la misma Wi-Fi.
    - `EXPO_PUBLIC_API_URL` con la IP de `ipconfig`.
    - El Firewall de Windows debe permitir Node en redes privadas.
-4. La ruta del proyecto contiene espacios y `&`: hay que **poner siempre las rutas entre comillas**.
+4. **Ruta del proyecto sin espacios ni `&`** (`C:\Users\USUARIO\Desktop\Estudio\TheLifeGame`, desde el 2026-11-26). Antes estaba en `Workgroup & Scrum` y el `&` rompía `npx` en Windows: los `.cmd` de `node_modules/.bin` cortan la ruta en el `&`. **Cada miembro del equipo debe clonar el repositorio en una ruta sin `&`.**
+5. Tras clonar: `cd app` → `npm ci` (usa `app/package-lock.json` y `app/.npmrc`).
+6. **`app/.npmrc` con `legacy-peer-deps=true`:** `expo-router` arrastra `@radix-ui` (solo web), que pide `react-dom` ≥ 19.3.1, y SDK 58 fija React 19.3.0. Como la app es solo Android, no se instalan dependencias pares de web. Sin este archivo, `npm install` falla con `ERESOLVE`. El paquete de Android se compiló sin `react-dom` (`expo export --platform android`).
 
 ## 11. Estrategia de pruebas
 
@@ -293,5 +300,9 @@ El reloj `now` se **inyecta** siempre en el dominio, para poder probarlo.
 | Fecha | Cambio |
 |---|---|
 | 2026-11-25 | Versión inicial (Fase 0). |
+| 2026-11-27 | Fase 6: ocurrencias con horizonte de 0 días (R-26); servicios `habitService` y `occurrenceService`; reloj inyectado en los servicios (`services/deps.ts`). |
+| 2026-11-26 | Fase 1: Entrega 1 sin backend (P-57); clave `habit-reward` con `<seq>` (`DATA_MODEL.md` §5). |
+| 2026-11-26 | Fase 3: estado de `app/`, transacciones en cola, migraciones, pruebas con `node:sqlite`, problemas del `&` en la ruta y `.npmrc`. |
+| 2026-11-26 | Proyecto movido a `Desktop\Estudio\TheLifeGame`: `npx` vuelve a funcionar; se retira la tabla de comandos alternativos. |
 | 2026-11-25 | v1.2: operaciones `undoDayClose`, recuperación por vida perdida, recompensas de los desafíos, límite de misiones; cosméticos fuera de la Entrega 1. |
 | 2026-11-25 | v1.1: TypeScript + Expo Router + Zustand en la app; Android; backend JavaScript con token opaco y respaldo por instantánea; API de la Entrega 1; SQL portable; plazo de 72 h y gracia; APK y notificaciones. |
