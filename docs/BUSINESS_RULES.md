@@ -30,10 +30,11 @@ Unidades: **HP** se expresa en vidas (10 máx.) y, entre paréntesis, en **unida
 | RN-AUTH-02 | El registro pide **nombre de usuario** (único, sin distinguir mayúsculas), **correo** (único) y **contraseña de mínimo 6 caracteres**, y muestra el **aviso de privacidad** con su consentimiento (C-25). Después, el onboarding pide el **propósito personal** y las **metas** (texto libre + categoría). La creación del avatar llega después de la Entrega 1: hasta entonces se usa un avatar fijo. | Confirmado | Doc §4; P-48; C-20 |
 | RN-AUTH-03 | El perfil inicial tiene **10 HP (20 unidades), 0 Hojas de mate, 0 XP y nivel 0**. | Confirmado | C-05 |
 | RN-AUTH-04 | Con una sesión válida, la app abre **Home** directamente. Si el usuario cerró sesión o la sesión dejó de ser válida, se muestra la autenticación. | Confirmado | Doc §4.2 |
-| RN-AUTH-05 | La contraseña nunca se guarda en texto plano y el token de sesión va en el almacenamiento seguro del sistema operativo. | Confirmado | C-19 |
+| RN-AUTH-05 | La contraseña nunca se guarda en texto plano y el token de sesión va en el almacenamiento seguro del sistema operativo. **Entrega 1 (P-57):** hash SHA-256 con sal en SQLite y, en SecureStore, el id del usuario activo. | Confirmado | C-19; P-57 |
 | RN-AUTH-06 | El propósito y las metas contextualizan los mensajes motivacionales. | Confirmado | Doc §4 |
 | RN-AUTH-07 | Se inicia sesión con **nombre de usuario o correo** y contraseña. | Confirmado | Rev. Fase 0 (D1) |
-| RN-AUTH-08 | **Cerrar sesión no pierde el progreso:** antes de salir se respalda en el servidor, y al volver a iniciar sesión se recarga. Si no hay conexión, se avisa y **no se borran** los datos locales. | Confirmado | Rev. Fase 0 (D4) |
+| RN-AUTH-08 | **Cerrar sesión no pierde el progreso:** antes de salir se respalda en el servidor, y al volver a iniciar sesión se recarga. Si no hay conexión, se avisa y **no se borran** los datos locales. **Entrega 1 (P-57):** sin servidor; cerrar sesión no borra nada y los datos vuelven al iniciar sesión en el mismo teléfono. | Confirmado | Rev. Fase 0 (D4); P-57 |
+| RN-AUTH-10 | **Ajustes** (engranaje del HUD, en todas las pestañas): el usuario puede cambiar su **nombre de usuario** (mismo formato y unicidad, R-31) y el **texto y la categoría de sus metas** (mismos límites, R-32), ajustar el volumen de la música y cerrar sesión. | Confirmado | P-61 |
 | RN-AUTH-09 | No hay servicio de correo de pago. "¿Olvidaste tu contraseña?" muestra un **enlace al correo de soporte** (P-40) y el equipo restablece la contraseña a mano, tras verificar la identidad. | Confirmado / Abierta (P-40) | Rev. Fase 0 (D3) |
 
 ## 2. Hábitos (HAB)
@@ -42,13 +43,13 @@ Unidades: **HP** se expresa en vidas (10 máx.) y, entre paréntesis, en **unida
 |---|---|---|---|
 | RN-HAB-01 | Hay hábitos **personalizados** (crear, editar, eliminar, programar) y **recomendados** (catálogo del equipo, aplazado tras la entrega, P-04). | Confirmado | Doc §6 |
 | RN-HAB-02 | Recompensa de cada hábito (recomendado o personalizado): **Hojas de mate ∈ {0, 5, 10, 15, 20, 25, 30}** y **XP ∈ {0, 10, 20, 30, 40, 50}**, presentada como dificultad (Fácil 10 · Media 20–30 · Difícil 40–50). | Confirmado | C-06 |
-| RN-HAB-03 | El usuario programa libremente cada hábito por **días de la semana o fechas concretas**, desde el Mapa. | Confirmado | Doc §6.3 |
+| RN-HAB-03 | El usuario programa libremente cada hábito por **días de la semana o fechas concretas**, desde el Mapa. **Entrega 1:** la programación se elige en el formulario del hábito; la tabla de programación del Mapa llega en la Fase 9. | Confirmado | Doc §6.3 |
 | RN-HAB-04 | Cada fecha programada genera una **ocurrencia con ID propio**. Hay como máximo **una por hábito y jornada** en la v1; varias al día es una mejora futura (P-43). | Confirmado | Doc §6.3; Rev. Fase 0 (B14) |
 | RN-HAB-05 | **Editar** un hábito: las ocurrencias de jornadas futuras se **regeneran** con los valores nuevos; la de **hoy conserva** los suyos; las de jornadas cerradas **nunca cambian**. | Confirmado | C-07 |
-| RN-HAB-06 | **Eliminar** un hábito: deja de programarse y se eliminan sus ocurrencias futuras; la de **hoy se conserva** y el historial no se toca (eliminación lógica). | Confirmado | C-07 |
+| RN-HAB-06 | **Eliminar** un hábito: deja de programarse y se eliminan sus ocurrencias futuras; la de **hoy se conserva** (así no se puede borrar un hábito para esquivar su desafío) y el historial no se toca (eliminación lógica). La misión de hoy muestra "Hábito eliminado · última vez hoy". | Confirmado | C-07 |
 | RN-HAB-07 | Cambiar la programación solo afecta a las ocurrencias **futuras**. | Confirmado | Doc §10.2 |
 | RN-HAB-08 | Todo hábito es **medible**: tiene **cantidad** (entero > 0) y **unidad** (minutos, páginas, repeticiones, km, vasos, veces u otra). | Confirmado | C-23 |
-| RN-HAB-09 | Todo hábito tiene una **categoría** que elige el usuario entre 16: Ejercicio, Estudio, Lectura, Arte y creatividad, Mindfulness, Salud y alimentación, Autocuidado, Hogar y orden, Finanzas personales, Relaciones y vida social, Trabajo y productividad, Espiritualidad, Bienestar digital, Ocio y hobbies, Voluntariado y comunidad, Otro. | Confirmado | C-23; P-42 |
+| RN-HAB-09 | Todo hábito tiene una **categoría** que elige el usuario entre 17 (P-59): Desarrollo personal general, Ejercicio, Estudio, Lectura, Arte y creatividad, Mindfulness, Salud y alimentación, Autocuidado, Hogar y orden, Finanzas personales, Relaciones y vida social, Trabajo y productividad, Espiritualidad, Bienestar digital, Ocio y hobbies, Voluntariado y comunidad, Otro. | Confirmado | C-23; P-42 |
 
 ## 3. Jornada y registro de cumplimiento (DAY)
 
@@ -150,8 +151,10 @@ Unidades: **HP** se expresa en vidas (10 máx.) y, entre paréntesis, en **unida
 | RN-MIS-01 | Son **voluntarias** y están en la sección **Desafíos**. Un botón abre un modal que **felicita** al usuario por ir más allá de lo programado y le permite **elegir una categoría**. | Confirmado | Rev. Fase 0 (C6) |
 | RN-MIS-02 | La recompensa es fija: **20 Hojas + 20 XP** (configurable). Se muestra antes de aceptar. | Confirmado | C-31 |
 | RN-MIS-03 | La recompensa se acredita **una sola vez** por misión. | Confirmado | Doc §15.5 |
-| RN-MIS-04 | Como máximo **3 misiones secundarias por jornada**. La app **sugiere** una misión medible según las metas y hábitos de la categoría, y el usuario puede **modificarla** o escribir la suya (descripción, cantidad y unidad). | Confirmado | C-31 |
+| RN-MIS-04 | Como máximo **3 misiones secundarias por jornada**; las abandonadas **no cuentan** (P-58). La app **sugiere** una misión medible según las metas y hábitos de la categoría, y el usuario puede **modificarla** o escribir la suya (descripción, cantidad y unidad). | Confirmado | C-31 |
 | RN-MIS-05 | **Bloqueadas a 0 HP.** | Confirmado | P-14 |
+| RN-MIS-06 | El usuario puede **abandonar** una misión aceptada. Al cerrar la jornada, las misiones aceptadas sin completar pasan a **abandonadas** automáticamente. Abandonar no quita HP, Hojas ni XP. | Confirmado | P-58 |
+| RN-MIS-07 | Las misiones secundarias **no cuentan** en el porcentaje del Mapa ni en la racha. El porcentaje es solo de las misiones del día (hábitos programados). | Confirmado | P-58 |
 
 ## 10. Mapa (MAP)
 
@@ -192,7 +195,7 @@ Unidades: **HP** se expresa en vidas (10 máx.) y, entre paréntesis, en **unida
 | RN-CLOSE-06 | Tras **Día Finalizado**, Home muestra el **mensaje de cierre** según el rendimiento y la meta. | Confirmado | P-34 |
 | RN-CLOSE-09 | **Deshacer Día Finalizado:** se puede hacer mientras no lleguen las 04:00 de esa jornada. Revierte **solo** lo que hizo ese cierre: las ocurrencias que el cierre marcó como incumplidas vuelven a `PENDING`, se eliminan sus desafíos, se borra el resumen de la jornada y se restaura la racha. Los vencimientos de desafíos anteriores (que dependen del reloj) se mantienen. Un cierre automático no se puede deshacer. | Confirmado / Interpretación (detalle) | C-29 |
 | RN-CLOSE-07 | **Racha** = jornadas Perfecto consecutivas. Las jornadas "Sin actividades programadas" **se saltan**. | Confirmado | P-30 |
-| RN-CLOSE-08 | Tras cerrar una jornada se hace el **respaldo** en el servidor si hay conexión. | Entrega 1 (opcional) | R-29 |
+| RN-CLOSE-08 | Tras cerrar una jornada se hace el **respaldo** en el servidor si hay conexión. | Después de la Entrega 1 (P-57) | R-29 |
 
 ## 13. HUD y navegación (NAV)
 
@@ -298,7 +301,7 @@ CLOSED (MANUAL) ──(deshacer antes de las 04:00)────▶ OPEN     [rev
 | INT-17 | A 0 HP, ninguna acción bloqueada produce efectos. | RN-NAV-04 |
 | INT-18 | La gracia de 12 h se aplica como máximo una vez por desafío. | RN-DES-10 |
 | INT-19 | Deshacer Día Finalizado deja la jornada exactamente como estaba antes del cierre (salvo los vencimientos que dependen del reloj). Volver a cerrarla no duplica efectos. | RN-CLOSE-09 |
-| INT-20 | Como máximo 3 misiones secundarias por jornada. | RN-MIS-04 |
+| INT-20 | Como máximo 3 misiones secundarias no abandonadas por jornada. | RN-MIS-04 |
 
 ---
 
@@ -371,5 +374,9 @@ CLOSED (MANUAL) ──(deshacer antes de las 04:00)────▶ OPEN     [rev
 | Fecha | Cambio |
 |---|---|
 | 2026-11-25 | v1.0 (Fase 0). |
+| 2026-11-26 | P-58: RN-MIS-06 y RN-MIS-07; RN-MIS-04 e INT-20 excluyen las misiones abandonadas. |
+| 2026-11-27 | Fase 6: RN-HAB-03 (programación en el formulario en la Entrega 1) y RN-HAB-09 (17 categorías). |
+| 2026-11-27 | RN-AUTH-10 (Ajustes, P-61). Categorías: 17 con *Desarrollo personal general* (P-59). |
+| 2026-11-26 | Fase 1: notas de la Entrega 1 sin backend (P-57) en RN-AUTH-05, RN-AUTH-08 y RN-CLOSE-08. Sin cambios en las reglas del juego. |
 | 2026-11-25 | v1.2: segunda revisión. Desafíos con ½ Hojas (hacia abajo) + 20 % de XP; recuperación definida; curva de niveles y valores de XP; 16 categorías; máximo 3 misiones al día, editables; jornadas en pausa a 0 HP; recompensa real ≥ 20 Hojas; deshacer Día Finalizado; contraseña de mínimo 6 caracteres; cosméticos después de la Entrega 1. |
 | 2026-11-25 | v1.1: respuestas de la revisión de la Fase 0. Plazo de 72 h + gracia; desafíos con ½ Hojas; ánimo cambiante (último prevalece); deshacer en 10 s; 0 HP; Superdesafío por hábito; misiones 20/20; hábitos medibles con categoría; Hojas en múltiplos de 5; respaldo por instantánea en la Entrega 1. |

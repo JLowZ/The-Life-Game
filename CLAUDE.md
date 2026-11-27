@@ -21,10 +21,14 @@ El equipo está **aprendiendo**: explica las decisiones técnicas con claridad y
 
 - **Fase 0 cerrada el 2026-11-25** (dos rondas de revisión). Casi todas las decisiones están resueltas. Siguen abiertas, sin bloquear el desarrollo: P-36 (dónde corre Node), P-38 (arte a partir del logo), P-40 (correo de soporte) y P-56 (licencia y universidad).
 - **Próximo hito: Entrega 1, lunes 30-nov-2026. Alcance mínimo (C-20):** login, crear hábitos y asignarlos a días, HUD, recompensas por hábitos, desafíos por incumplimiento y por vidas perdidas, misiones secundarias y Mapa. **Sin cosméticos ni creación de avatar.** Detalle en `docs/PRODUCT_SPEC.md` §1.1; plan por días en `docs/DEVELOPMENT_ROADMAP.md`.
+- **Entrega 1 sin backend (P-57, 2026-11-26):** la app funciona sola en el teléfono (registro e inicio de sesión locales en SQLite, sin respaldo). La Fase 2 se hace después de la entrega, con la IP, el puerto, el usuario y la contraseña del servidor que dará el profesor.
 - **No empieces ninguna fase sin aprobación explícita del equipo.** El equipo puede aprobar varias fases en bloque (P-53): ejecútalas en orden y detente al final del bloque.
-- Aún **no hay código de producto**:
-  - `app/` es la plantilla Expo en blanco (JavaScript; se migra a TypeScript + Expo Router en la Fase 3);
-  - `backend/` solo tiene dependencias instaladas.
+- **Fases 1 y 3 hechas (2026-11-26):**
+  - `app/` ya es TypeScript + Expo Router, con SQLite (esquema v1 migrado), SecureStore, Zustand, Jest y ESLint; las cuatro pestañas son marcadores;
+  - `backend/` solo tiene dependencias instaladas (Fase 2 después de la entrega).
+- **Fase 4 hecha (2026-11-27):** registro, inicio de sesión y onboarding locales; sesión con `Stack.Protected`; servicios con dependencias inyectables (`services/deps.ts`). R-31 a R-33 aprobadas. **Expo Router 58:** todo `Stack.Protected` lleva `redirectTo` con una ruta concreta (sin él, cerrar sesión entraba en un bucle de redirecciones). Registro como asistente (R-34), Ajustes (P-61), 17 categorías (P-59, migración 002).
+- **Fase 5 hecha y probada (2026-11-27):** HUD (`HudHeader` en la cabecera de las pestañas, engranaje en las cuatro), dominio de niveles y corazones. Sin mensaje de apertura ni selector de ánimo (extras).
+- **Fase 6 hecha (2026-11-27):** hábitos (`habitService`), ocurrencias con horizonte de 0 días y marcado con deshacer (`occurrenceService`), acreditación de Hojas y XP con libros de movimientos (adelantada de la Fase 8). Probada en el teléfono; R-35 aprobada. "Mis hábitos" se mueve al Mapa en la Fase 9.
 
 ## 3. Documentación y orden de consulta
 
@@ -69,7 +73,7 @@ Si encuentras una contradicción nueva: descríbela, indica qué prevalece, reg�
 | Base de datos | MySQL en **XAMPP / phpMyAdmin** (servidor del profesor). SQL portable por una posible migración a Supabase (R-30, P-51). |
 | Pruebas | Jest: `jest-expo` (app) · Jest + supertest (backend). |
 | Repositorio | Monorepo **público** `https://github.com/JLowZ/The-Life-Game`. |
-| Entorno | Windows 11 + VS Code. **La ruta local contiene espacios y `&`: pon siempre las rutas entre comillas.** |
+| Entorno | Windows 11 + VS Code. Ruta local: `C:\Users\USUARIO\Desktop\Estudio\TheLifeGame` (sin espacios ni `&`; se movió el 2026-11-26 porque el `&` rompía `npx`). |
 
 ## 5. Estructura del repositorio
 

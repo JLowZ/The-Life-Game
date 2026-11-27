@@ -92,11 +92,16 @@ El prefijo nunca cambia; cambia el **estado**. Cada cambio se propaga según `CL
 | R-23 | `EXPO_PUBLIC_API_URL` con la IP LAN y sin secretos. | **Aprobada** (P-55) |
 | R-24 | `BUSINESS_RULES.md` como fuente única; los `ESC-xx` sirven de pruebas. | **Aprobada** (P-55) |
 | R-25 | Las penalizaciones a 0 HP se registran con delta 0. | **Aprobada** (P-55) |
-| R-26 | Ocurrencias en un horizonte móvil. | **Aprobada** (P-55) |
+| R-26 | Ocurrencias en un horizonte móvil. **Fase 6:** horizonte de **0 días** (`OCCURRENCE_HORIZON_DAYS`): solo se guarda la fila de la jornada actual y las futuras se calculan desde la programación, así que editar un hábito no reescribe filas (RN-HAB-05). | **Aprobada** (P-55) |
 | R-27 | Cola de salida desde la Fase 6. | Aplazada (Fase 11) |
 | R-28 | Iniciar Claude Code desde la raíz. | **Aprobada** (P-55) |
 | R-29 | Respaldo por instantánea en la Entrega 1 (si da tiempo; ver C-20). | **Adoptada** (§2.1) |
 | R-30 | SQL portable a PostgreSQL (Supabase). | **Adoptada** (§2.1) |
+| R-31 | **Formato del nombre de usuario:** de 3 a 20 caracteres; solo letras, números, `_`, `.` y `-`; sin espacios ni `@`. Así "usuario o correo" (RN-AUTH-07) nunca es ambiguo: con `@` es un correo. Fase 4. | **Aprobada** (equipo, 2026-11-27) |
+| R-32 | **Límites de texto del onboarding:** propósito obligatorio (máx. 200 caracteres), al menos 1 meta (máx. 100 caracteres cada una). Fase 4. | **Aprobada** (equipo, 2026-11-27) |
+| R-34 | **Registro como asistente:** el formulario de la cuenta solo valida y comprueba que el usuario y el correo estén libres; la cuenta, el perfil inicial, el propósito y las metas se crean **juntos al final del onboarding**, en una transacción. Permite volver atrás y corregir los datos y evita cuentas a medias. El borrador vive solo en memoria (contiene la contraseña). Las cuentas antiguas sin onboarding siguen pudiendo terminarlo. | **Adoptada** (equipo, 2026-11-27: "poder volver después de crear usuario y contraseña") |
+| R-35 | **Límites del formulario de hábitos:** nombre de máx. 60 caracteres, cantidad de 1 a 9.999, unidad libre de máx. 20 caracteres; las fechas concretas se eligen entre las próximas 4 semanas. Fase 6. | **Aprobada** (equipo, 2026-11-27) |
+| R-33 | **Aviso de privacidad** (`app/src/content/authTexts.ts`), redactado en tono formal: responsable, datos, finalidad, ánimo como dato voluntario, almacenamiento local, terceros, derechos, menores y cambios. Describe la Entrega 1 (todo en el teléfono). Se revisa con el backend, el correo de soporte (P-40) y la ley aplicable (P-56); no sustituye una revisión jurídica. | **Aprobada** (equipo, 2026-11-27) |
 
 ### 2.1. Decisiones delegadas a Claude (justificación)
 
@@ -154,7 +159,7 @@ El prefijo nunca cambia; cambia el **estado**. Cada cambio se propaga según `CL
 | P-37 | Recompensas reales | Ilimitadas; costo **≥ 20 Hojas** (C-30). | Rev. 1 (C9), Rev. 2 |
 | P-39 | Cierre de sesión | Nunca borra datos sin respaldar. | Rev. 1 (D4) |
 | P-41 | Metas | Texto libre + categoría (las mismas que las de los hábitos). | Rev. 1 (C10) |
-| P-42 | Categorías | **16:** Ejercicio · Estudio · Lectura · Arte y creatividad · Mindfulness · Salud y alimentación · Autocuidado · Hogar y orden · Finanzas personales · Relaciones y vida social · Trabajo y productividad · Espiritualidad · Bienestar digital · Ocio y hobbies · Voluntariado y comunidad · Otro. | Rev. 2 (C3, 7) |
+| P-42 | Categorías | **17** desde P-59 (se añade *Desarrollo personal general*, la primera). Las 16 originales: Ejercicio · Estudio · Lectura · Arte y creatividad · Mindfulness · Salud y alimentación · Autocuidado · Hogar y orden · Finanzas personales · Relaciones y vida social · Trabajo y productividad · Espiritualidad · Bienestar digital · Ocio y hobbies · Voluntariado y comunidad · Otro. | Rev. 2 (C3, 7) |
 | P-44 | Identidad | "The Life Game", slug `the-life-game`, paquete `com.techphic.thelifegame`. Licencia: C-32. | Rev. 1 (D6), Rev. 2 (13) |
 | P-45 | Migraciones | SQL numerados (servidor); `PRAGMA user_version` (SQLite). | Rev. 1 (A10) |
 | P-46 | Orden de las fases | Se mantiene. | Rev. 1 (A11) |
@@ -165,6 +170,10 @@ El prefijo nunca cambia; cambia el **estado**. Cada cambio se propaga según `CL
 | P-53 | Aprobación por bloques | Sí: dos fases por día según el plan. | Rev. 2 (14) |
 | P-54 | Valores de XP | 0, 10, 20, 30, 40 o 50, presentados como dificultad. | Rev. 2 (6) |
 | P-55 | Recomendaciones | Aprobadas en bloque. | Rev. 2 (15) |
+| P-59 | Categoría general | Se añade la categoría **Desarrollo personal general** (`PERSONAL_DEVELOPMENT`), que abarca todas las demás. Va la primera de la lista. Migración local `002` (la `001` no se edita). Necesitará también sus mensajes (C-33) cuando se redacten. | Equipo, 2026-11-27 |
+| P-61 | Ajustes | Pantalla **Ajustes**, que se abre con un **engranaje en el HUD de las cuatro pestañas** (el equipo lo amplió desde Inicio el 2026-11-27): cambiar el **nombre de usuario** (R-31, único), editar el **texto y la categoría de las metas**, **volumen de la música** y **Cerrar sesión** (sale de Inicio). | Equipo, 2026-11-27 |
+| P-58 | Ciclo de vida de las misiones secundarias | (1) Una misión **aceptada y sin completar al cerrar la jornada** pasa a `ABANDONED`, sin pérdida de HP ni de Hojas. (2) El usuario puede **abandonarla a mano**. (3) Las abandonadas **no cuentan** para el máximo de 3 por jornada. (4) Las misiones secundarias **no cuentan** en el porcentaje del Mapa ni en la racha: el porcentaje es solo de las misiones del día (hábitos programados). | Equipo, 2026-11-26 |
+| P-57 | Entrega 1 sin backend | **La Entrega 1 no lleva backend** (indicación del profesor). La app funciona sola en el teléfono: registro e inicio de sesión **locales** en SQLite (hash SHA-256 con sal, `expo-crypto`), sesión = `activeUserId` en SecureStore, sin respaldo. El backend (Fase 2) se hace **después** de tener la app funcional, con la IP, el puerto, el usuario y la contraseña que dará el profesor. Afecta a C-04, R-29, RN-AUTH-05, RN-AUTH-08 y RN-CLOSE-08 solo durante la Entrega 1 (CT-25). | Equipo, 2026-11-26 (profesor) |
 
 ### 3.2. Abiertas
 
@@ -173,6 +182,7 @@ El prefijo nunca cambia; cambia el **estado**. Cada cambio se propaga según `CL
 - El equipo consulta al profesor con el mensaje redactado en la revisión.
 - Mientras tanto, se desarrolla con el backend y XAMPP **en el portátil del equipo**. Ese entorno no cambia, sea cual sea la respuesta.
 - **Bloquea:** la configuración final de la conexión (Fase 2), no el desarrollo.
+- **2026-11-26:** ya no afecta a la Entrega 1 (P-57). El profesor dará la IP, el puerto, el usuario y la contraseña del servidor cuando se haga el backend.
 
 #### P-38 · Recursos gráficos pixel art
 - El equipo comparte el **logo** y sus **bocetos**. Claude propone, a partir de ellos, la paleta, la tipografía y sprites sencillos generados a partir de una cuadrícula de píxeles.
@@ -195,6 +205,7 @@ El prefijo nunca cambia; cambia el **estado**. Cada cambio se propaga según `CL
 | P-05 | Recompensas reales predefinidas | Después de la entrega. |
 | P-43 | Varias ocurrencias de un hábito por día | Mejora futura. |
 | P-51 | Migración a Supabase | Después de la entrega (R-30). |
+| P-60 | Música | El equipo quiere usar tracks de techno propios del sello **Nemorphic**. Se decide después de la Entrega 1 (licencia de uso, qué tracks, paquete de audio que funcione en Expo Go). El volumen ya se guarda (P-61). |
 | P-52 | Backend en TypeScript | Después de la entrega. |
 
 ---
@@ -229,6 +240,7 @@ El prefijo nunca cambia; cambia el **estado**. Cada cambio se propaga según `CL
 | CT-22 | XP de los desafíos | Rev. 1 (B9): "NO dan XP" | **20 % de la XP** del hábito | Rev. 2 (1c) | C-27 |
 | CT-23 | Deshacer Día Finalizado | Interpretación de la Rev. 1: no se deshace | **Se puede deshacer hasta las 04:00** | Rev. 2 | C-29 |
 | CT-24 | Alcance de la Entrega 1 | Rev. 1 (A1): incluía 2–3 cosméticos y la creación del avatar | Sin cosméticos ni creación de avatar; foco en la base | Rev. 2 | C-20 |
+| CT-25 | Servidor en la Entrega 1 | C-04 / R-29: el servidor autentica y respalda | Entrega 1 **solo local**: autenticación en SQLite y sin respaldo. El backend llega después | Profesor (2026-11-26) | P-57 |
 
 ---
 
@@ -250,3 +262,10 @@ El prefijo nunca cambia; cambia el **estado**. Cada cambio se propaga según `CL
 | 2026-11-25 | Creación (Fase 0). |
 | 2026-11-25 | Revisión 1: C-20..C-28, R-29, R-30, CT-13..CT-21; decisiones delegadas. |
 | 2026-11-25 | Revisión 2: C-29..C-33; resueltas P-03, P-07, P-12, P-15, P-16, P-42, P-48, P-49, P-50, P-53, P-54 y P-55; nueva P-56; CT-22..CT-24; alcance mínimo de la Entrega 1; recomendaciones aprobadas en bloque. |
+| 2026-11-26 | Fase 1: P-57 (Entrega 1 sin backend) y CT-25. P-36 deja de afectar a la Entrega 1. |
+| 2026-11-26 | P-58: ciclo de vida de las misiones secundarias (abandono, límite de 3 y Mapa). |
+| 2026-11-27 | R-35 aprobada. Eliminar un hábito conserva la misión de hoy (RN-HAB-06) con el aviso "Hábito eliminado · última vez hoy". "Mis hábitos" pasa al Mapa en la Fase 9. |
+| 2026-11-27 | Fase 6: R-26 concretada (horizonte de 0 días) y R-35 propuesta (límites del formulario de hábitos). |
+| 2026-11-27 | P-59 (categoría Desarrollo personal general), P-61 (Ajustes), P-60 aplazada (música de Nemorphic) y R-34 (registro como asistente). |
+| 2026-11-27 | R-31, R-32 y R-33 aprobadas por el equipo; aviso de privacidad redactado en tono formal. |
+| 2026-11-27 | Fase 4: propuestas R-31 (formato del usuario), R-32 (límites del onboarding) y R-33 (aviso de privacidad provisional). |
