@@ -153,7 +153,9 @@ Avatar (con lo equipado) · nombre · nivel · barra de XP · **diez corazones**
 
 - Ver las **misiones del día** con su recompensa (Hojas y XP) y su cantidad ("60 minutos").
 - **Marcar** cumplido o incumplido, con un botón **Deshacer** durante 10 s.
-- Ver los **desafíos activos** con su **tiempo restante** (C-24).
+- Ver los **desafíos activos** con su **tiempo restante** (C-24): un aviso con el desafío más próximo y un botón a Desafíos.
+- **Entrega 1, provisional:** botón "Mis hábitos" (crear, editar y programar) hasta que la Fase 9 lo lleve al Mapa.
+- **Pendiente (extra):** mensaje de apertura y selector de ánimo (§6.2).
 - Cambiar el estado de ánimo.
 - **Día Finalizado:** cierra la jornada y muestra el mensaje de cierre según el rendimiento y la meta. **Se puede deshacer hasta las 04:00**: los hábitos que el cierre marcó como incumplidos vuelven a estar pendientes y se eliminan sus desafíos.
 
@@ -271,6 +273,8 @@ Sin descuento inmediato · mensaje empático · reconoce que hay días difícile
 - **Completar:** por **autodeclaración** del criterio. Da ½ de las Hojas (hacia abajo) y el 20 % de la XP del hábito, y no cambia el porcentaje del día.
 - No se puede completar fuera de plazo.
 
+**Implementación (Fase 7):** la pantalla Desafíos muestra cada desafío con su tipo ("Desafío", "Mini desafío", "Desafío de recuperación"), la recompensa, la cuenta atrás y el botón de autodeclaración "Lo hice: 30 minutos". Deshacer un incumplimiento dentro de los 10 s borra su desafío, salvo que ya se haya resuelto.
+
 ### 10.2. Recuperación de HP (P-12)
 
 - Internamente hay **20 vidas** (unidades); el usuario ve **10 corazones**. Cada vida perdida equivale a medio corazón.
@@ -300,7 +304,7 @@ Sin descuento inmediato · mensaje empático · reconoce que hay días difícile
 2. El usuario **elige una categoría**.
 3. Recompensa fija: **20 Hojas + 20 XP**, mostrada antes de aceptar y acreditada una sola vez.
 
-- **Personalización:** la app sugiere una misión medible según sus metas y hábitos de esa categoría, y el usuario puede **modificarla** o escribir la suya.
+- **Personalización:** la app sugiere una misión medible según sus metas y hábitos de esa categoría, y el usuario puede **modificarla** o escribir la suya. Orden de la sugerencia (R-36): un hábito activo de la categoría ("Sesión extra de …", tamaño normal) → una meta de la categoría → una sugerencia por defecto de la categoría.
 - **Máximo 3 misiones por jornada** (C-31); las abandonadas no cuentan (P-58).
 - Se pueden **abandonar** sin coste. Las que siguen aceptadas al cerrar la jornada se abandonan solas (RN-MIS-06).
 - **No cuentan** en el porcentaje del Mapa ni en la racha (RN-MIS-07).
@@ -426,6 +430,7 @@ Fuera de las pestañas están bienvenida, registro, inicio de sesión, propósit
 
 | Versión | Fecha | Cambio |
 |---|---|---|
+| 1.5 | 2026-11-27 | Fase 7: pantalla Desafíos, aviso en Home, orden de las sugerencias de misiones (R-36). |
 | 1.4 | 2026-11-27 | Registro como asistente (R-34); Ajustes con engranaje (P-61); 17 categorías (P-59). |
 | 1.1 | 2026-11-25 | Derivada del Doc v1.0 con las actualizaciones de la Fase 0. |
 | 1.3 | 2026-11-25 | Segunda revisión: alcance mínimo de la Entrega 1 (sin cosméticos ni creación de avatar); desafíos con ½ Hojas + 20 % de XP; recuperación definida; curva de niveles; 16 categorías; 3 misiones al día, editables; recompensa real ≥ 20; deshacer Día Finalizado; contraseña de mínimo 6 caracteres. |

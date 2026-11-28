@@ -71,6 +71,43 @@ export async function insertXpTransaction(
   );
 }
 
+export type HpLedgerReason = 'MISSED_HABIT_PENALTY' | 'RECOVERY' | 'ZERO_HP_RECOVERY' | 'SUPER_CHALLENGE';
+
+/** Libro de HP (INT-02, INT-03). R-25: a 0 HP se registra igual, con delta_applied = 0. */
+export async function insertHpEntry(
+  db: SqlDatabase,
+  entry: {
+    id: string;
+    userId: string;
+    reason: HpLedgerReason;
+    deltaRequested: number;
+    deltaApplied: number;
+    sourceType: string;
+    sourceId: string;
+    idempotencyKey: string;
+    hpAfter: number;
+    now: string;
+  },
+): Promise<void> {
+  await db.runAsync(
+    `INSERT INTO hp_ledger_entries (id, user_id, reason, delta_requested, delta_applied, source_type,
+       source_id, idempotency_key, hp_after, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      entry.id,
+      entry.userId,
+      entry.reason,
+      entry.deltaRequested,
+      entry.deltaApplied,
+      entry.sourceType,
+      entry.sourceId,
+      entry.idempotencyKey,
+      entry.hpAfter,
+      entry.now,
+    ],
+  );
+}
+
 /** INT-14: el saldo guardado debe coincidir con la suma de sus movimientos. */
 export async function sumLedgers(db: SqlDatabase, userId: string): Promise<{ leaves: number; xp: number }> {
   const leaves = await db.getFirstAsync<{ total: number | null }>(

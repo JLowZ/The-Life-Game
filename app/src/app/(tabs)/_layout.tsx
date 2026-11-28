@@ -1,10 +1,10 @@
 import { Tabs } from 'expo-router';
 import { useEffect } from 'react';
-import { View, type ColorValue } from 'react-native';
+import { AppState, View, type ColorValue } from 'react-native';
 
 import { HudHeader } from '@/components/HudHeader';
 import { colors } from '@/config/theme';
-import { refreshPlayerProfile } from '@/services/profileService';
+import { reconcile } from '@/services/reconciliationService';
 import { useAppDeps } from '@/services/useAppDeps';
 import { useSessionStore } from '@/state/useSessionStore';
 
@@ -17,13 +17,18 @@ function PixelIcon({ color }: { color: ColorValue }) {
 
 /** Pestañas con el HUD como cabecera, siempre visible (RN-NAV-01), con el engranaje de Ajustes en todas. */
 export default function TabsLayout() {
-  const { db } = useAppDeps();
+  const deps = useAppDeps();
   const userId = useSessionStore((s) => s.user?.id);
 
-  // Carga el HUD al entrar con una cuenta.
+  // Reconciliación al entrar con una cuenta y al volver al primer plano (R-09).
   useEffect(() => {
-    if (userId) refreshPlayerProfile(db, userId).catch(() => undefined);
-  }, [db, userId]);
+    if (!userId) return;
+    reconcile(deps, userId, { appOpened: true }).catch(() => undefined);
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') reconcile(deps, userId, { appOpened: true }).catch(() => undefined);
+    });
+    return () => subscription.remove();
+  }, [deps, userId]);
 
   return (
     <Tabs
@@ -37,8 +42,8 @@ export default function TabsLayout() {
     >
       <Tabs.Screen name="index" options={{ title: 'Inicio' }} />
       <Tabs.Screen name="map" options={{ title: 'Mapa' }} />
-      <Tabs.Screen name="shop" options={{ title: 'Tienda' }} />
       <Tabs.Screen name="challenges" options={{ title: 'Desafíos' }} />
+      <Tabs.Screen name="shop" options={{ title: 'Tienda' }} />
     </Tabs>
   );
 }

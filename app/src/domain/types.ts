@@ -128,3 +128,38 @@ export interface HabitOccurrence {
 export interface DailyMission extends HabitOccurrence {
   habitArchived: boolean;
 }
+
+/** Desafío (tabla challenges). `deadlineAt` solo en MISSED_HABIT. */
+export interface Challenge {
+  id: string;
+  userId: string;
+  kind: ChallengeKind;
+  variant: ChallengeVariant | null;
+  sourceOccurrenceId: string | null;
+  sourceGameDate: GameDate | null;
+  sourcePenaltyId: string | null;
+  habitId: string | null;
+  title: string;
+  targetQuantity: number | null;
+  unit: string | null;
+  status: ChallengeStatus;
+  deadlineAt: IsoTimestamp | null;
+  graceApplied: boolean;
+  mateLeavesReward: number;
+  xpReward: number;
+  createdAt: IsoTimestamp;
+}
+
+/** Misión secundaria (tabla user_missions). */
+export interface UserMission {
+  id: string;
+  userId: string;
+  gameDate: GameDate;
+  categoryId: HabitCategoryId;
+  description: string;
+  targetQuantity: number;
+  unit: string;
+  mateLeavesReward: number;
+  xpReward: number;
+  status: MissionStatus;
+}

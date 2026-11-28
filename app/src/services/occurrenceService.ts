@@ -1,6 +1,9 @@
 import { isDayClosed } from '@/database/repositories/dailySummariesRepository';
 import { listActiveHabits, listActiveSchedulesForUser } from '@/database/repositories/habitsRepository';
-import { insertCurrencyTransaction, insertXpTransaction } from '@/database/repositories/ledgerRepository';
+import {
+  deletePendingChallengeOfOccurrence,
+  findChallengeByOccurrence,
+} from '@/database/repositories/challengesRepository';
 import {
   findOccurrence,
   insertOccurrenceIfAbsent,
@@ -8,11 +11,10 @@ import {
   reopenOccurrence,
   resolveOccurrence,
 } from '@/database/repositories/occurrencesRepository';
-import { getPlayerProfile, updatePlayerBalances } from '@/database/repositories/playerProfilesRepository';
+import { getPlayerProfile } from '@/database/repositories/playerProfilesRepository';
 import { runInTransaction } from '@/database/transaction';
 import { getGameDate } from '@/domain/gameDay';
 import {
-  applyBalanceDeltas,
   decideMark,
   decideUndo,
   MARK_ERROR_MESSAGES,
@@ -22,7 +24,9 @@ import { isHabitScheduledOn } from '@/domain/schedule';
 import type { DailyMission, GameDate } from '@/domain/types';
 import { useHabitsStore } from '@/state/useHabitsStore';
 
+import { createMissedHabitChallenge } from './challengeService';
 import type { AppDeps } from './deps';
+import { applyRewards } from './ledgerEffects';
 import { refreshPlayerProfile } from './profileService';
 
 /**
@@ -113,29 +117,20 @@ export async function markOccurrence(
     if (!resolved) return { ok: false, error: MARK_ERROR_MESSAGES.ALREADY_RESOLVED };
 
     if (effects.rewardKey) {
-      const balances = applyBalanceDeltas(profile, effects.leavesDelta, effects.xpDelta);
-      const source = { userId, type: 'HABIT_REWARD' as const, sourceType: 'OCCURRENCE', sourceId: occurrence.id };
-      if (effects.leavesDelta !== 0) {
-        await insertCurrencyTransaction(deps.db, {
-          ...source,
-          id: deps.crypto.randomUUID(),
-          amount: effects.leavesDelta,
-          idempotencyKey: effects.rewardKey,
-          balanceAfter: balances.mateLeavesBalance,
-          now: nowIso,
-        });
-      }
-      if (effects.xpDelta !== 0) {
-        await insertXpTransaction(deps.db, {
-          ...source,
-          id: deps.crypto.randomUUID(),
-          amount: effects.xpDelta,
-          idempotencyKey: effects.rewardKey,
-          xpTotalAfter: balances.xpTotal,
-          now: nowIso,
-        });
-      }
-      await updatePlayerBalances(deps.db, { userId, ...balances, now: nowIso });
+      await applyRewards(deps, {
+        profile,
+        leavesDelta: effects.leavesDelta,
+        xpDelta: effects.xpDelta,
+        type: 'HABIT_REWARD',
+        sourceType: 'OCCURRENCE',
+        sourceId: occurrence.id,
+        idempotencyKey: effects.rewardKey,
+        nowIso,
+      });
+    }
+    if (effects.status === 'MISSED') {
+      // RN-DAY-06: el incumplimiento genera su desafío en ese momento.
+      await createMissedHabitChallenge(deps, { ...occurrence, status: 'MISSED' }, now);
     }
     return { ok: true };
   });
@@ -164,6 +159,15 @@ export async function undoMark(deps: AppDeps, userId: string, occurrenceId: stri
     if (!decision.ok) return { ok: false, error: MARK_ERROR_MESSAGES[decision.error] };
     const { effects } = decision;
 
+    if (occurrence.status === 'MISSED') {
+      // RN-DAY-07: deshacer borra el desafío generado, solo si aún no tuvo efectos.
+      const challenge = await findChallengeByOccurrence(deps.db, occurrence.id);
+      if (challenge && challenge.status !== 'PENDING') {
+        return { ok: false, error: 'No se puede deshacer: su desafío ya se resolvió.' };
+      }
+      await deletePendingChallengeOfOccurrence(deps.db, occurrence.id);
+    }
+
     const reopened = await reopenOccurrence(deps.db, {
       id: occurrence.id,
       expectedSeq: occurrence.resolutionSeq,
@@ -172,29 +176,16 @@ export async function undoMark(deps: AppDeps, userId: string, occurrenceId: stri
     if (!reopened) return { ok: false, error: MARK_ERROR_MESSAGES.NOT_RESOLVED };
 
     if (effects.reversalKey) {
-      const balances = applyBalanceDeltas(profile, effects.leavesDelta, effects.xpDelta);
-      const source = { userId, type: 'UNDO_REVERSAL' as const, sourceType: 'OCCURRENCE', sourceId: occurrence.id };
-      if (effects.leavesDelta !== 0) {
-        await insertCurrencyTransaction(deps.db, {
-          ...source,
-          id: deps.crypto.randomUUID(),
-          amount: effects.leavesDelta,
-          idempotencyKey: effects.reversalKey,
-          balanceAfter: balances.mateLeavesBalance,
-          now: nowIso,
-        });
-      }
-      if (effects.xpDelta !== 0) {
-        await insertXpTransaction(deps.db, {
-          ...source,
-          id: deps.crypto.randomUUID(),
-          amount: effects.xpDelta,
-          idempotencyKey: effects.reversalKey,
-          xpTotalAfter: balances.xpTotal,
-          now: nowIso,
-        });
-      }
-      await updatePlayerBalances(deps.db, { userId, ...balances, now: nowIso });
+      await applyRewards(deps, {
+        profile,
+        leavesDelta: effects.leavesDelta,
+        xpDelta: effects.xpDelta,
+        type: 'UNDO_REVERSAL',
+        sourceType: 'OCCURRENCE',
+        sourceId: occurrence.id,
+        idempotencyKey: effects.reversalKey,
+        nowIso,
+      });
     }
     return { ok: true };
   });
