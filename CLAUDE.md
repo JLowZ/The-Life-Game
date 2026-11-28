@@ -23,10 +23,10 @@ El equipo está **aprendiendo**: explica las decisiones técnicas con claridad y
 - **Próximo hito: Entrega 1, lunes 30-nov-2026. Alcance mínimo (C-20):** login, crear hábitos y asignarlos a días, HUD, recompensas por hábitos, desafíos por incumplimiento y por vidas perdidas, misiones secundarias y Mapa. **Sin cosméticos ni creación de avatar.** Detalle en `docs/PRODUCT_SPEC.md` §1.1; plan por días en `docs/DEVELOPMENT_ROADMAP.md`.
 - **Entrega 1 sin backend (P-57, 2026-11-26):** la app funciona sola en el teléfono (registro e inicio de sesión locales en SQLite, sin respaldo). La Fase 2 se hace después de la entrega, con la IP, el puerto, el usuario y la contraseña del servidor que dará el profesor.
 - **No empieces ninguna fase sin aprobación explícita del equipo.** El equipo puede aprobar varias fases en bloque (P-53): ejecútalas en orden y detente al final del bloque.
-- **Hechas:** Fases 1, 3, 4, 5, 6 y 7 (2026-11-27). Probadas en el teléfono hasta la 7 (2026-11-28). Detalle por fase en `docs/DEVELOPMENT_ROADMAP.md`; estructura real en `docs/ARCHITECTURE.md` §4.
-- **Siguiente:** Fases 8 y 9 (bloque aprobado el 2026-11-28) → **`docs/NEXT_STEPS.md`**.
+- **Hechas:** Fases 1, 3 a 7 (2026-11-27) y 8 y 9 (2026-11-28). Probadas en el teléfono hasta la 9 (2026-11-28). Detalle por fase en `docs/DEVELOPMENT_ROADMAP.md`; estructura real en `docs/ARCHITECTURE.md` §4.
+- **Siguiente:** programación por casillas en el Mapa (ajuste de la Fase 9) → **`docs/NEXT_STEPS.md`**.
 - **Si el equipo pregunta qué hacer, qué probar o qué sigue:** responde **solo** con lo de `docs/NEXT_STEPS.md`, en pocas líneas, sin leer otros archivos (ahorra tokens). **Al terminar cada fase, reescribe `docs/NEXT_STEPS.md`.**
-- **Claves técnicas ya decididas:** servicios con dependencias inyectadas (`services/deps.ts`, reloj controlable en las pruebas); todo `Stack.Protected` lleva `redirectTo` concreto (expo-router 58); ocurrencias con horizonte de 0 días (R-26); Hojas/XP/HP vía `services/ledgerEffects.ts`; reconciliación en `services/reconciliationService.ts`.
+- **Claves técnicas ya decididas:** servicios con dependencias inyectadas (`services/deps.ts`, reloj controlable en las pruebas); todo `Stack.Protected` lleva `redirectTo` concreto (expo-router 58); ocurrencias con horizonte de 0 días (R-26); Hojas/XP/HP vía `services/ledgerEffects.ts`; reconciliación en `services/reconciliationService.ts` (cierra jornadas pendientes, en cola); cierre de jornada en `services/dayCloseService.ts`.
 - **Git:** Claude puede hacer commit, push a ramas y PR con `gh` cuando se lo pidan (`.claude/settings.local.json`; prohibidos `--force` y push a `main`). Ver `docs/GIT_WORKFLOW.md` §8.
 
 ## 3. Documentación y orden de consulta

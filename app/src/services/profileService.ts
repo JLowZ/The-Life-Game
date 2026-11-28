@@ -1,4 +1,5 @@
 import { getPlayerProfile } from '@/database/repositories/playerProfilesRepository';
+import { findUserPurpose } from '@/database/repositories/usersRepository';
 import type { SqlDatabase } from '@/database/types';
 import type { PlayerProfile } from '@/domain/types';
 import { usePlayerStore } from '@/state/usePlayerStore';
@@ -21,4 +22,9 @@ export async function refreshPlayerProfile(db: SqlDatabase, userId: string): Pro
 /** Al cerrar sesión, el HUD no debe mostrar datos de la cuenta anterior. */
 export function clearPlayerProfile(): void {
   usePlayerStore.getState().setProfile(null);
+}
+
+/** Propósito del usuario para los mensajes de cierre (P-34). */
+export async function loadPurpose(db: SqlDatabase, userId: string): Promise<string | null> {
+  return findUserPurpose(db, userId);
 }

@@ -163,3 +163,20 @@ export interface UserMission {
   xpReward: number;
   status: MissionStatus;
 }
+
+/** Resumen de una jornada cerrada (tabla daily_summaries). Inmutable (RN-MAP-05). */
+export interface DailySummary {
+  id: string;
+  userId: string;
+  gameDate: GameDate;
+  scheduledCount: number;
+  completedCount: number;
+  missedCount: number;
+  classification: DayClassification;
+  lastMood: MoodValue | null;
+  streakBefore: number;
+  streakAfter: number;
+  messageId: string | null;
+  closeSource: CloseSource;
+  closedAt: IsoTimestamp;
+}

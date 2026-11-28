@@ -1,11 +1,11 @@
 # Siguientes pasos
 
-> Actualizado: 2026-11-28, Fase 7 probada. **Claude reescribe este archivo al terminar cada fase.**
+> Actualizado: 2026-11-28, Fases 8 y 9 probadas y subidas. **Claude reescribe este archivo al terminar cada fase.**
 
 ## En curso
 
-- Fases 8 y 9 (bloque aprobado el 2026-11-28): jornadas en pausa a 0 HP, cierre de jornada (Día Finalizado + deshacer), reconciliación de jornadas pasadas y Mapa (calendario, programación y "Mis hábitos" movido desde Inicio).
+- Ajuste de la Fase 9: programar los hábitos con casillas (hábito × día de la semana) en la tabla del Mapa.
 
-## Pendiente de revisar
+## Revisar mañana (29-nov)
 
-- PR de la Fase 7 (`feature/fase-7-desafios`), apilado sobre el PR de las Fases 1 a 6.
+- Al abrir la app, el 28 aparece cerrado solo en el Mapa y la racha se actualiza (cierre automático).

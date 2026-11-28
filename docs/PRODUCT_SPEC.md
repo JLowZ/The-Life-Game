@@ -154,7 +154,7 @@ Avatar (con lo equipado) · nombre · nivel · barra de XP · **diez corazones**
 - Ver las **misiones del día** con su recompensa (Hojas y XP) y su cantidad ("60 minutos").
 - **Marcar** cumplido o incumplido, con un botón **Deshacer** durante 10 s.
 - Ver los **desafíos activos** con su **tiempo restante** (C-24): un aviso con el desafío más próximo y un botón a Desafíos.
-- **Entrega 1, provisional:** botón "Mis hábitos" (crear, editar y programar) hasta que la Fase 9 lo lleve al Mapa.
+- "Mis hábitos" (crear, editar y programar) está en el **Mapa** desde la Fase 9.
 - **Pendiente (extra):** mensaje de apertura y selector de ánimo (§6.2).
 - Cambiar el estado de ánimo.
 - **Día Finalizado:** cierra la jornada y muestra el mensaje de cierre según el rendimiento y la meta. **Se puede deshacer hasta las 04:00**: los hábitos que el cierre marcó como incumplidos vuelven a estar pendientes y se eliminan sus desafíos.

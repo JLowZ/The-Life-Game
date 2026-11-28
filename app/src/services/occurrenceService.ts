@@ -1,4 +1,4 @@
-import { isDayClosed } from '@/database/repositories/dailySummariesRepository';
+import { findSummary, isDayClosed } from '@/database/repositories/dailySummariesRepository';
 import { listActiveHabits, listActiveSchedulesForUser } from '@/database/repositories/habitsRepository';
 import {
   deletePendingChallengeOfOccurrence,
@@ -40,6 +40,8 @@ import { refreshPlayerProfile } from './profileService';
  * Debe llamarse DENTRO de una transacción o como paso suelto: no abre una propia.
  */
 export async function ensureOccurrencesForDate(deps: AppDeps, userId: string, gameDate: GameDate): Promise<void> {
+  // Una jornada cerrada no cambia (RN-MAP-05): un hábito creado tras Día Finalizado empieza mañana.
+  if (await isDayClosed(deps.db, userId, gameDate)) return;
   const [habits, schedules] = await Promise.all([
     listActiveHabits(deps.db, userId),
     listActiveSchedulesForUser(deps.db, userId, gameDate),
@@ -66,7 +68,7 @@ export async function loadToday(
 /** Recarga el store de las Misiones del día y el HUD (RN-NAV-03). */
 export async function refreshToday(deps: AppDeps, userId: string): Promise<void> {
   const { gameDate, occurrences } = await loadToday(deps, userId);
-  useHabitsStore.getState().setToday(gameDate, occurrences);
+  useHabitsStore.getState().setToday(gameDate, occurrences, await findSummary(deps.db, userId, gameDate));
   await refreshPlayerProfile(deps.db, userId);
 }
 

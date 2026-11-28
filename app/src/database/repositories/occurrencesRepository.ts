@@ -188,3 +188,35 @@ export async function reopenOccurrence(
   );
   return result.changes === 1;
 }
+
+/**
+ * Cierre de jornada (RN-CLOSE-02 paso 3, P-50): las pendientes pasan a MISSED
+ * (o PAUSED si la jornada está en pausa) con `resolution_source = 'DAY_CLOSE'`,
+ * para que deshacer Día Finalizado sepa cuáles tocó (RN-CLOSE-09).
+ */
+export async function closePendingOccurrences(
+  db: SqlDatabase,
+  params: { userId: string; gameDate: GameDate; ids: readonly string[]; to: 'MISSED' | 'PAUSED'; now: string },
+): Promise<void> {
+  for (const id of params.ids) {
+    await db.runAsync(
+      `UPDATE habit_occurrences
+          SET status = ?, resolved_at = ?, resolution_source = 'DAY_CLOSE', updated_at = ?, version = version + 1
+        WHERE id = ? AND user_id = ? AND game_date = ? AND status = 'PENDING'`,
+      [params.to, params.now, params.now, id, params.userId, params.gameDate],
+    );
+  }
+}
+
+/** Deshacer Día Finalizado: las que cerró el cierre vuelven a PENDING (RN-CLOSE-09). */
+export async function reopenDayCloseOccurrences(
+  db: SqlDatabase,
+  params: { userId: string; gameDate: GameDate; now: string },
+): Promise<void> {
+  await db.runAsync(
+    `UPDATE habit_occurrences
+        SET status = 'PENDING', resolved_at = NULL, resolution_source = NULL, updated_at = ?, version = version + 1
+      WHERE user_id = ? AND game_date = ? AND resolution_source = 'DAY_CLOSE'`,
+    [params.now, params.userId, params.gameDate],
+  );
+}

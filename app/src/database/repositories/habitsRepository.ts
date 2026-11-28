@@ -231,3 +231,18 @@ export async function closeSchedulesFrom(
     [params.yesterday, params.now, params.habitId, params.today],
   );
 }
+
+/** Programaciones de los hábitos activos vigentes desde `fromDate` (proyección del Mapa, R-26). */
+export async function listActiveSchedulesFrom(
+  db: SqlDatabase,
+  userId: string,
+  fromDate: GameDate,
+): Promise<HabitSchedule[]> {
+  const rows = await db.getAllAsync<ScheduleRow>(
+    `SELECT ${SCHEDULE_COLUMNS} FROM habit_schedules s
+       JOIN habits h ON h.id = s.habit_id
+      WHERE h.user_id = ? AND h.archived_at IS NULL AND (s.valid_to IS NULL OR s.valid_to >= ?)`,
+    [userId, fromDate],
+  );
+  return rows.map(toSchedule);
+}

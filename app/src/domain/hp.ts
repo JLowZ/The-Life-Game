@@ -40,3 +40,10 @@ export function formatHpLabel(units: HpHalfUnits): string {
   const hearts = String(halfUnitsToHearts(units)).replace('.', ',');
   return `HP ${hearts} de ${TOTAL_HEARTS}`;
 }
+
+/** RN-NAV-04, INT-17: a 0 HP se bloquean programar, marcar, comprar, canjear y misiones. */
+export function isZeroHp(units: HpHalfUnits): boolean {
+  return units <= MIN_HP_HALF_UNITS;
+}
+
+export const ZERO_HP_SCHEDULE_MESSAGE = 'Sin vidas no puedes programar hábitos. Completa un desafío de recuperación.';
