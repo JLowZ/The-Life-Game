@@ -54,7 +54,7 @@
 | Elemento | Estado |
 |---|---|
 | Raíz | **Monorepo git** conectado a `https://github.com/JLowZ/The-Life-Game`. `main` + rama `feature/fases-1-a-6-base` (Fases 1–6, subida a GitHub). Harness (`CLAUDE.md`, `docs/`, `.claude/rules/`), `LICENSE`, `.gitignore`, `.gitattributes`, `app/` y `backend/`. |
-| `app/` | **Fases 3 a 9 hechas y probadas:** TypeScript estricto + Expo Router (SDK 58, RN 0.88.1, React 19.3.0). SQLite (migraciones `001` y `002`), SecureStore, Zustand, Jest y ESLint. Registro y sesión locales, HUD, hábitos, desafíos, misiones secundarias, cierre de jornada y Mapa. Siguiente: `docs/NEXT_STEPS.md`. |
+| `app/` | **Fases 3 a 10 hechas y probadas (la 10, solo recompensas reales):** TypeScript estricto + Expo Router (SDK 58, RN 0.88.1, React 19.3.0). SQLite (migraciones `001` y `002`), SecureStore, Zustand, Jest y ESLint. Registro y sesión locales, HUD, hábitos, desafíos, misiones secundarias, cierre de jornada y Mapa. Siguiente: `docs/NEXT_STEPS.md`. |
 | `backend/` | Dependencias instaladas. Sin scripts ni entrada (Fase 2, después de la entrega, P-57). |
 
 ## 4. Frontend (`app/`)
@@ -72,13 +72,14 @@ app/src/
 │   └── habit-form.tsx        crear/editar hábito (?id= para editar)
 ├── screens/                  composición de cada pantalla
 ├── components/               presentacionales (PixelButton, Hud, HeartsBar, XpBar, OccurrenceCard,
-│                             ChallengeCard, MissionModal, MapCalendar, DaySummaryCard, ScheduleTable…).
+│                             ChallengeCard, MissionModal, MapCalendar, DaySummaryCard, ScheduleTable,
+│                             RewardCard…).
 │                             HudHeader es el único contenedor.
 ├── state/                    Zustand: useSessionStore, usePlayerStore, useHabitsStore,
 │                             useChallengesStore, useRegistrationDraftStore (solo memoria)
 ├── services/                 casos de uso (una transacción cada uno) + deps.ts / platformDeps.ts
 ├── domain/                   reglas puras: auth, onboarding, gameDay, level, hp, habits, schedule,
-│                             habitMarking, challenges, missions, dayClose, calendar, categories, types
+│                             habitMarking, challenges, missions, dayClose, calendar, shop, categories, types
 ├── database/                 la única capa con SQL: migrate, migrations/, repositories/, transaction,
 │                             secureSession, preferencesStore (kv-store), testing/
 ├── content/                  textos: authTexts (aviso de privacidad), habitTexts, challengeTexts, dayTexts
@@ -305,6 +306,7 @@ El reloj `now` se **inyecta** siempre en el dominio, para poder probarlo.
 | Fecha | Cambio |
 |---|---|
 | 2026-11-25 | Versión inicial (Fase 0). |
+| 2026-11-28 | Fase 10: `shopService` (recompensas reales) y `applySpend` (gasto de Hojas sin tocar la XP). |
 | 2026-11-28 | §10: solución al error `Cannot find native module 'ExpoSQLite'` (caché de Metro, `npx expo start -c`). |
 | 2026-11-28 | Fases 8 y 9: `dayCloseService` (cierre manual y automático, deshacer), `mapService`; la reconciliación cierra primero las jornadas pendientes, va en cola y trata la primera llamada tras arrancar como apertura (R-37). |
 | 2026-11-27 | §3, §4.1–4.3 y §4.8 actualizados con la estructura real de las Fases 3 a 7. |

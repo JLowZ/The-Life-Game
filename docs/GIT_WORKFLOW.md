@@ -213,7 +213,9 @@ lo que viene de la otra rama
 - Claude **no hace commit ni push** si no se lo pedís. Cuando se lo pidáis, trabajará en una rama y abrirá el PR.
 - **Permisos (2026-11-27):** `.claude/settings.local.json` (personal, en `.gitignore`) permite a Claude `git add`, `git commit`, `git switch`, `git push` a ramas y `gh pr create/view/list`. Están **prohibidos** `push --force` y el push directo a `main`. Cada integrante que quiera lo mismo crea su propio archivo.
 - **GitHub CLI (`gh`)** instalada y autenticada en el PC de JLowZ (`winget install GitHub.cli` + `gh auth login`). En Git Bash, si `gh` no aparece en el PATH, está en `C:\Program Files\GitHub CLI\gh.exe` (reiniciar la terminal lo arregla).
-- Ramas de trabajo: `feature/fases-1-a-6-base` (subida) y, cuando se aprueben las pruebas, `feature/fase-7-desafios`.
+- **PR apilados (stacked):** cada fase sale de la rama de la anterior y su PR apunta a esa rama, así cada PR muestra solo su fase. Ramas: `feature/fases-1-a-6-base` (PR #1 → `main`) → `feature/fase-7-desafios` (PR #2) → `feature/fases-8-9-cierre-mapa` (PR #3) → `feature/fase-10-tienda` (PR #4).
+- **Cómo hacer el merge:** en orden, empezando por el #1. Al hacer el merge de uno y borrar su rama, GitHub cambia la base del siguiente a `main`. Si no lo hace, edita la base del PR a mano ("Edit" junto al título).
+- **Rama nueva:** sale de la última rama (`feature/fase-10-tienda`) o de `main` si ya se hizo el merge de todo.
 - Revisad siempre lo que cambió (`git diff` o el panel de VS Code) antes de aprobar.
 - Claude debe trabajar con el repositorio abierto **desde la raíz**.
 

@@ -24,7 +24,7 @@
 | 7 | Estado de ánimo, desafíos y mini desafíos | ✔ | **Hecha (2026-11-27)** sin el selector de ánimo ni el Superdesafío (extras; el dominio ya admite el mini). Incluye vencimiento, gracia y recuperación (adelantados de la Fase 8). Probada en Expo Go (2026-11-28; el vencimiento con el reloj, por prueba automática). R-36 aprobada |
 | 8 | HP, XP, Hojas de mate y progresión | ✔ | **Hecha (2026-11-28):** jornadas en pausa a 0 HP y bloqueo de la programación a 0 HP (marcar y misiones ya lo estaban). Sin el Superdesafío (extra). Probada en Expo Go (2026-11-28) |
 | 9 | Mapa y cierre diario | ✔ | **Hecha (2026-11-28):** calendario con clasificación, detalle del día, tabla de programación con "Mis hábitos", Día Finalizado con deshacer hasta las 04:00, cierre automático por reconciliación y racha. Sin respaldo (P-57). R-37 aprobada. Probada en Expo Go (2026-11-28); el cierre automático se revisa el 29. Programación por casillas hecha y probada (2026-11-28) |
-| 10 | Tienda y avatar (las misiones pasan a la Fase 7) | Opcional (recompensas reales); sin cosméticos | No iniciada |
+| 10 | Tienda y avatar (las misiones pasan a la Fase 7) | Opcional (recompensas reales); sin cosméticos | **Recompensas reales hechas (2026-11-28):** crear, canjear sin límite (con confirmación) y eliminar; últimos canjes. Sin cosméticos ni avatar (después de la entrega). R-38 aprobada. Probada en Expo Go (2026-11-28) |
 | 11 | Sincronización, pruebas y seguridad | Parcial (respaldo y pruebas críticas) | No iniciada |
 | 12 | Compilación y distribución | APK opcional | No iniciada |
 
@@ -271,6 +271,7 @@ Todas las demás decisiones de las Fases 1 a 9 están resueltas.
 |---|---|
 | 2026-11-25 | Versión inicial (Fase 0). |
 | 2026-11-26 | P-57: Entrega 1 sin backend. La Fase 2 pasa a después de la entrega; el jueves se hacen las Fases 1 y 3; autenticación local en la Fase 4. |
+| 2026-11-28 | Fase 10 (Entrega 1): `domain/shop.ts`, `rewardsRepository`, `shopService` (crear, canjear idempotente, eliminar), `applySpend` en `ledgerEffects` y pantalla Tienda. |
 | 2026-11-28 | Ajuste de la Fase 9 (equipo): programación por casillas en la tabla del Mapa (`toggleHabitWeekday`). Probada en Expo Go. |
 | 2026-11-28 | Fases 8 y 9: `domain/dayClose.ts`, `domain/calendar.ts`, `dayCloseService` (Día Finalizado, deshacer, cierre de jornadas pendientes), `mapService`, Mapa (calendario, detalle, programación) y Día Finalizado en Inicio. R-37 propuesta. |
 | 2026-11-28 | Fase 7 probada; R-36 aprobada; pestañas en el orden Home, Mapa, Desafíos, Tienda (P-62). |

@@ -339,7 +339,7 @@ Una tabla bajo el calendario cruza los hábitos (filas) con los días de la sema
 
 ### 12.1. Recompensas reales
 
-El usuario crea las suyas (nombre + costo de **mínimo 20 Hojas**, sin máximo) y las canjea **cuantas veces quiera**, validando el saldo. Cada canje queda registrado. Las predefinidas llegan después de la entrega (P-05).
+El usuario crea las suyas (nombre + costo de **mínimo 20 Hojas**, sin máximo) y las canjea **cuantas veces quiera**, validando el saldo. Cada canje queda registrado (la Tienda muestra los últimos) y pide confirmación. Eliminar una recompensa no borra sus canjes (R-38). Canjear se bloquea a 0 HP. Las predefinidas llegan después de la entrega (P-05).
 
 ### 12.2. Cosméticos
 
