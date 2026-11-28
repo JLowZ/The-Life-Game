@@ -70,6 +70,17 @@ export async function updatePlayerBalances(
   );
 }
 
+/** Caché del HP (0..20; el CHECK de la tabla es la red de seguridad de INT-03). */
+export async function updatePlayerHp(
+  db: SqlDatabase,
+  params: { userId: string; hpHalfUnits: number; now: string },
+): Promise<void> {
+  await db.runAsync(
+    'UPDATE player_profiles SET hp_half_units = ?, updated_at = ?, version = version + 1 WHERE user_id = ?',
+    [params.hpHalfUnits, params.now, params.userId],
+  );
+}
+
 export async function getPlayerProfile(db: SqlDatabase, userId: string): Promise<PlayerProfile | null> {
   const row = await db.getFirstAsync<ProfileRow>(
     `SELECT user_id, level, xp_total, mate_leaves_balance, hp_half_units, perfect_streak

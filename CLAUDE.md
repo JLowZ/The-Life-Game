@@ -23,12 +23,11 @@ El equipo está **aprendiendo**: explica las decisiones técnicas con claridad y
 - **Próximo hito: Entrega 1, lunes 30-nov-2026. Alcance mínimo (C-20):** login, crear hábitos y asignarlos a días, HUD, recompensas por hábitos, desafíos por incumplimiento y por vidas perdidas, misiones secundarias y Mapa. **Sin cosméticos ni creación de avatar.** Detalle en `docs/PRODUCT_SPEC.md` §1.1; plan por días en `docs/DEVELOPMENT_ROADMAP.md`.
 - **Entrega 1 sin backend (P-57, 2026-11-26):** la app funciona sola en el teléfono (registro e inicio de sesión locales en SQLite, sin respaldo). La Fase 2 se hace después de la entrega, con la IP, el puerto, el usuario y la contraseña del servidor que dará el profesor.
 - **No empieces ninguna fase sin aprobación explícita del equipo.** El equipo puede aprobar varias fases en bloque (P-53): ejecútalas en orden y detente al final del bloque.
-- **Fases 1 y 3 hechas (2026-11-26):**
-  - `app/` ya es TypeScript + Expo Router, con SQLite (esquema v1 migrado), SecureStore, Zustand, Jest y ESLint; las cuatro pestañas son marcadores;
-  - `backend/` solo tiene dependencias instaladas (Fase 2 después de la entrega).
-- **Fase 4 hecha (2026-11-27):** registro, inicio de sesión y onboarding locales; sesión con `Stack.Protected`; servicios con dependencias inyectables (`services/deps.ts`). R-31 a R-33 aprobadas. **Expo Router 58:** todo `Stack.Protected` lleva `redirectTo` con una ruta concreta (sin él, cerrar sesión entraba en un bucle de redirecciones). Registro como asistente (R-34), Ajustes (P-61), 17 categorías (P-59, migración 002).
-- **Fase 5 hecha y probada (2026-11-27):** HUD (`HudHeader` en la cabecera de las pestañas, engranaje en las cuatro), dominio de niveles y corazones. Sin mensaje de apertura ni selector de ánimo (extras).
-- **Fase 6 hecha (2026-11-27):** hábitos (`habitService`), ocurrencias con horizonte de 0 días y marcado con deshacer (`occurrenceService`), acreditación de Hojas y XP con libros de movimientos (adelantada de la Fase 8). Probada en el teléfono; R-35 aprobada. "Mis hábitos" se mueve al Mapa en la Fase 9.
+- **Hechas:** Fases 1, 3, 4, 5, 6 y 7 (2026-11-27). Probadas en el teléfono hasta la 7 (2026-11-28). Detalle por fase en `docs/DEVELOPMENT_ROADMAP.md`; estructura real en `docs/ARCHITECTURE.md` §4.
+- **Siguiente:** Fases 8 y 9 (bloque aprobado el 2026-11-28) → **`docs/NEXT_STEPS.md`**.
+- **Si el equipo pregunta qué hacer, qué probar o qué sigue:** responde **solo** con lo de `docs/NEXT_STEPS.md`, en pocas líneas, sin leer otros archivos (ahorra tokens). **Al terminar cada fase, reescribe `docs/NEXT_STEPS.md`.**
+- **Claves técnicas ya decididas:** servicios con dependencias inyectadas (`services/deps.ts`, reloj controlable en las pruebas); todo `Stack.Protected` lleva `redirectTo` concreto (expo-router 58); ocurrencias con horizonte de 0 días (R-26); Hojas/XP/HP vía `services/ledgerEffects.ts`; reconciliación en `services/reconciliationService.ts`.
+- **Git:** Claude puede hacer commit, push a ramas y PR con `gh` cuando se lo pidan (`.claude/settings.local.json`; prohibidos `--force` y push a `main`). Ver `docs/GIT_WORKFLOW.md` §8.
 
 ## 3. Documentación y orden de consulta
 
@@ -40,6 +39,7 @@ El equipo está **aprendiendo**: explica las decisiones técnicas con claridad y
 | `docs/ARCHITECTURE.md` | Stack, carpetas, API, respaldo, tiempo y reconciliación, entorno. |
 | `docs/DATA_MODEL.md` | Modelo de datos (**propuesta**, se aprueba en la Fase 1). |
 | `docs/DEVELOPMENT_ROADMAP.md` | Fases, plan día a día de la Entrega 1, backlog. |
+| `docs/NEXT_STEPS.md` | **Pruebas pendientes y siguiente paso** (respuesta corta a "¿qué hago ahora?"). |
 | `docs/GIT_WORKFLOW.md` | Cómo usar Git y GitHub en el equipo. |
 | `Documento_Explicativo_The_Life_Game.md` | Documento funcional **original**. **No se modifica.** |
 | `.claude/rules/frontend.md` · `backend.md` | Reglas técnicas por carpeta; se cargan al trabajar en ella. |

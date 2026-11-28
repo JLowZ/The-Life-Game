@@ -201,7 +201,7 @@ Unidades: **HP** se expresa en vidas (10 máx.) y, entre paréntesis, en **unida
 
 | Código | Regla | Estado | Fuente |
 |---|---|---|---|
-| RN-NAV-01 | Pestañas: **Home, Mapa, Tienda, Desafíos**, con el HUD siempre visible. | Confirmado | Doc §13 |
+| RN-NAV-01 | Pestañas: **Home, Mapa, Desafíos, Tienda**, con el HUD siempre visible. | Confirmado | Doc §13; orden según P-62 (CT-26) |
 | RN-NAV-02 | HUD: avatar, nombre, nivel, barra de XP, **diez corazones** (lleno, medio o vacío), racha y saldo de Hojas. | Confirmado | C-18 |
 | RN-NAV-03 | El HUD se actualiza en cuanto cambia una variable. | Confirmado | Doc §5.1 |
 | RN-NAV-04 | **A 0 HP**. **Bloqueado:** programar en el Mapa, marcar hábitos, comprar y canjear en la Tienda, misiones secundarias. **Permitido:** personalizar el avatar (equipar lo comprado), el Superdesafío, los desafíos que devuelven HP y **consultar** (solo lectura). Lo bloqueado se muestra deshabilitado y explica por qué. | Confirmado | P-14 |
@@ -377,6 +377,7 @@ CLOSED (MANUAL) ──(deshacer antes de las 04:00)────▶ OPEN     [rev
 | 2026-11-26 | P-58: RN-MIS-06 y RN-MIS-07; RN-MIS-04 e INT-20 excluyen las misiones abandonadas. |
 | 2026-11-27 | Fase 6: RN-HAB-03 (programación en el formulario en la Entrega 1) y RN-HAB-09 (17 categorías). |
 | 2026-11-27 | RN-AUTH-10 (Ajustes, P-61). Categorías: 17 con *Desarrollo personal general* (P-59). |
+| 2026-11-28 | RN-NAV-01: orden de las pestañas Home, Mapa, Desafíos, Tienda (P-62). |
 | 2026-11-26 | Fase 1: notas de la Entrega 1 sin backend (P-57) en RN-AUTH-05, RN-AUTH-08 y RN-CLOSE-08. Sin cambios en las reglas del juego. |
 | 2026-11-25 | v1.2: segunda revisión. Desafíos con ½ Hojas (hacia abajo) + 20 % de XP; recuperación definida; curva de niveles y valores de XP; 16 categorías; máximo 3 misiones al día, editables; jornadas en pausa a 0 HP; recompensa real ≥ 20 Hojas; deshacer Día Finalizado; contraseña de mínimo 6 caracteres; cosméticos después de la Entrega 1. |
 | 2026-11-25 | v1.1: respuestas de la revisión de la Fase 0. Plazo de 72 h + gracia; desafíos con ½ Hojas; ánimo cambiante (último prevalece); deshacer en 10 s; 0 HP; Superdesafío por hábito; misiones 20/20; hábitos medibles con categoría; Hojas en múltiplos de 5; respaldo por instantánea en la Entrega 1. |

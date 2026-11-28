@@ -12,6 +12,7 @@ import type { HabitCategory, HabitCategoryId, UserGoal } from '@/domain/types';
 import { signOut } from '@/services/authService';
 import { listHabitCategories } from '@/services/onboardingService';
 import { getMusicVolume, setMusicVolume } from '@/services/preferencesService';
+import { clearChallenges } from '@/services/challengeService';
 import { clearToday } from '@/services/occurrenceService';
 import { clearPlayerProfile } from '@/services/profileService';
 import { changeUsername, loadUserGoals, updateGoal } from '@/services/settingsService';
@@ -109,6 +110,7 @@ export function SettingsScreen() {
       await signOut(deps); // RN-AUTH-08: no borra datos
       clearPlayerProfile();
       clearToday();
+      clearChallenges();
       setUser(null);
     } catch {
       setLoadError('No se pudo cerrar sesión. Inténtalo de nuevo.');

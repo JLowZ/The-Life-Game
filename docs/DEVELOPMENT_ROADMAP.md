@@ -21,8 +21,8 @@
 | 4 | Registro, autenticación y perfil | ✔ | **Hecha y probada en Expo Go (2026-11-27).** Añadidos: registro como asistente (R-34) y Ajustes (P-61) |
 | 5 | Home y HUD | ✔ | **Hecha y probada (2026-11-27)** sin los extras (mensaje de apertura y selector de ánimo). Engranaje en las cuatro pestañas |
 | 6 | Hábitos y programación | ✔ | **Hecha (2026-11-27).** Incluye la acreditación de Hojas y XP de los hábitos (adelantada de la Fase 8). Probada en Expo Go (2026-11-27). R-35 aprobada |
-| 7 | Estado de ánimo, desafíos y mini desafíos | ✔ | No iniciada |
-| 8 | HP, XP, Hojas de mate y progresión | ✔ | No iniciada |
+| 7 | Estado de ánimo, desafíos y mini desafíos | ✔ | **Hecha (2026-11-27)** sin el selector de ánimo ni el Superdesafío (extras; el dominio ya admite el mini). Incluye vencimiento, gracia y recuperación (adelantados de la Fase 8). Probada en Expo Go (2026-11-28; el vencimiento con el reloj, por prueba automática). R-36 aprobada |
+| 8 | HP, XP, Hojas de mate y progresión | ✔ | No iniciada. **Queda poco:** jornadas en pausa a 0 HP y los extras (Superdesafío, bloqueos completos a 0 HP); acreditaciones, niveles, vencimiento y recuperación ya están hechos |
 | 9 | Mapa y cierre diario | ✔ | No iniciada |
 | 10 | Tienda y avatar (las misiones pasan a la Fase 7) | Opcional (recompensas reales); sin cosméticos | No iniciada |
 | 11 | Sincronización, pruebas y seguridad | Parcial (respaldo y pruebas críticas) | No iniciada |
@@ -271,6 +271,8 @@ Todas las demás decisiones de las Fases 1 a 9 están resueltas.
 |---|---|
 | 2026-11-25 | Versión inicial (Fase 0). |
 | 2026-11-26 | P-57: Entrega 1 sin backend. La Fase 2 pasa a después de la entrega; el jueves se hacen las Fases 1 y 3; autenticación local en la Fase 4. |
+| 2026-11-28 | Fase 7 probada; R-36 aprobada; pestañas en el orden Home, Mapa, Desafíos, Tienda (P-62). |
+| 2026-11-27 | Fase 7: desafío por incumplimiento al marcar "No cumplido" (50 %, 72 h, autodeclaración, cuenta atrás), recompensa ½ Hojas + 20 % XP, vencimiento con −1 unidad y desafío de recuperación (+1), gracia de 12 h al abrir la app, misiones secundarias (sugerencia editable, 20/20, máximo 3) y pantalla Desafíos. Orden 7 → 8 → 9 confirmado por el equipo por las dependencias del cierre. |
 | 2026-11-27 | Fase 6: hábitos, programación semanal o por fechas, ocurrencias con horizonte de 0 días, marcado con deshacer en 10 s y acreditación de hábitos con libros de movimientos (adelantada de la Fase 8). |
 | 2026-11-27 | Fase 4 probada. Botón atrás en el registro (R-34), Ajustes (P-61), categoría general (P-59). Fase 5: HUD en la cabecera de las pestañas; mensaje de apertura y ánimo pasan a los extras del lunes. |
 | 2026-11-27 | Fase 3 probada en Expo Go. Fase 4 hecha: registro, inicio de sesión y onboarding locales, sesión con `Stack.Protected`. |

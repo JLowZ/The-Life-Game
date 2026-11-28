@@ -23,6 +23,10 @@ export const DAY_CUTOFF_HOUR = 4;
 export const CHALLENGE_DURATION_HOURS = 72;
 export const GRACE_HOURS = 12;
 
+/** Vida que se pierde al vencer un desafío y que devuelve una recuperación (RN-HP-03, RN-HP-06). */
+export const PENALTY_HP_HALF_UNITS = 1;
+export const RECOVERY_HP_HALF_UNITS = 1;
+
 /**
  * Ocurrencias (R-26): horizonte móvil de 0 días. Solo se guarda la fila de la
  * jornada actual; las futuras se calculan desde la programación. Así, editar
@@ -59,6 +63,8 @@ export const MINI_CHALLENGE_PERCENT = 10;
 /** Misiones secundarias (C-31, P-58). */
 export const MISSION_REWARD = { leaves: 20, xp: 20 } as const;
 export const MAX_DAILY_MISSIONS = 3;
+/** Descripción de una misión secundaria (límite técnico, R-36 propuesta). */
+export const MISSION_DESCRIPTION_MAX_LENGTH = 80;
 
 /** Recompensas reales (C-30). */
 export const MIN_REAL_REWARD_COST = 20;

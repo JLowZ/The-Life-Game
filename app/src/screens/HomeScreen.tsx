@@ -7,12 +7,16 @@ import { PixelButton } from '@/components/PixelButton';
 import { UndoBar } from '@/components/UndoBar';
 import { UNDO_WINDOW_SECONDS } from '@/config/game';
 import { border, colors, spacing } from '@/config/theme';
+import { formatTimeLeft } from '@/content/challengeTexts';
 import { formatGameDateShort } from '@/content/habitTexts';
+import { timeLeftMs } from '@/domain/challenges';
 import type { MarkOutcome } from '@/domain/habitMarking';
 import type { HabitCategory } from '@/domain/types';
 import { listHabitCategories } from '@/services/onboardingService';
-import { markOccurrence, refreshToday, undoMark } from '@/services/occurrenceService';
+import { markOccurrence, undoMark } from '@/services/occurrenceService';
+import { reconcile } from '@/services/reconciliationService';
 import { useAppDeps } from '@/services/useAppDeps';
+import { useChallengesStore } from '@/state/useChallengesStore';
 import { useHabitsStore } from '@/state/useHabitsStore';
 import { usePlayerStore } from '@/state/usePlayerStore';
 import { useSessionStore } from '@/state/useSessionStore';
@@ -27,6 +31,7 @@ export function HomeScreen() {
   const gameDate = useHabitsStore((s) => s.gameDate);
   const occurrences = useHabitsStore((s) => s.todayOccurrences);
   const hpHalfUnits = usePlayerStore((s) => s.profile?.hpHalfUnits);
+  const activeChallenges = useChallengesStore((s) => s.active);
 
   const [categories, setCategories] = useState<HabitCategory[]>([]);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -39,7 +44,7 @@ export function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       if (!userId) return;
-      refreshToday(deps, userId).catch(() => setError('No se pudieron cargar tus misiones.'));
+      reconcile(deps, userId, { appOpened: false }).catch(() => setError('No se pudieron cargar tus misiones.'));
     }, [deps, userId]),
   );
 
@@ -71,7 +76,7 @@ export function HomeScreen() {
       const result = await markOccurrence(deps, currentUserId, occurrenceId, outcome);
       if (result.ok) setLastMarkedId(occurrenceId);
       else setError(result.error);
-      await refreshToday(deps, currentUserId);
+      await reconcile(deps, currentUserId, { appOpened: false });
     } catch {
       setError('No se pudo guardar. Inténtalo de nuevo.');
     } finally {
@@ -86,7 +91,7 @@ export function HomeScreen() {
       const result = await undoMark(deps, currentUserId, lastMarked.id);
       if (!result.ok) setError(result.error);
       setLastMarkedId(null);
-      await refreshToday(deps, currentUserId);
+      await reconcile(deps, currentUserId, { appOpened: false });
     } catch {
       setError('No se pudo deshacer. Inténtalo de nuevo.');
     } finally {
@@ -97,6 +102,10 @@ export function HomeScreen() {
   const categoryName = (id: string) => categories.find((c) => c.id === id)?.name ?? '';
   const disabledReason = hpHalfUnits === 0 ? ZERO_HP_REASON : undefined;
   const done = occurrences.filter((o) => o.status === 'COMPLETED').length;
+  // RN-DES-16: Inicio también muestra el tiempo restante del desafío más próximo.
+  const withDeadline = activeChallenges.filter((c) => c.deadlineAt !== null);
+  const nextLeft = withDeadline.length > 0 ? timeLeftMs(withDeadline[0]!, deps.now()) : null;
+  const recoveries = activeChallenges.filter((c) => c.kind === 'RECOVERY').length;
 
   return (
     <View style={styles.screen}>
@@ -117,6 +126,19 @@ export function HomeScreen() {
         </View>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
+
+        {activeChallenges.length > 0 ? (
+          <View style={styles.challengesCard}>
+            <Text style={styles.challengesText}>
+              {withDeadline.length > 0
+                ? `⏳ ${withDeadline.length} ${withDeadline.length === 1 ? 'desafío' : 'desafíos'} · el próximo vence en ${formatTimeLeft(nextLeft ?? 0)}`
+                : ''}
+              {withDeadline.length > 0 && recoveries > 0 ? '\n' : ''}
+              {recoveries > 0 ? `♥ ${recoveries} ${recoveries === 1 ? 'desafío' : 'desafíos'} de recuperación` : ''}
+            </Text>
+            <PixelButton label="Ver desafíos" variant="secondary" onPress={() => router.push('/challenges')} />
+          </View>
+        ) : null}
 
         {occurrences.length === 0 ? (
           <View style={styles.emptyCard}>
@@ -174,5 +196,13 @@ const styles = StyleSheet.create({
   empty: { color: colors.text, fontSize: 16, fontWeight: 'bold' },
   hint: { color: colors.textMuted, fontSize: 14, lineHeight: 20 },
   error: { color: colors.error, fontSize: 14, fontWeight: 'bold' },
+  challengesCard: {
+    backgroundColor: colors.cream,
+    borderColor: colors.gold,
+    borderWidth: border.width,
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
+  challengesText: { color: colors.navy, fontSize: 14, fontWeight: 'bold', lineHeight: 20 },
   undoWrapper: { position: 'absolute', left: spacing.md, right: spacing.md, bottom: spacing.md },
 });

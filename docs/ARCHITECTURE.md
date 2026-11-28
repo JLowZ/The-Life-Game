@@ -49,48 +49,42 @@
 | Estética | Pixel art basado en el **logo** y los bocetos del equipo; el acabado va después de la lógica. En la Entrega 1, avatar fijo y sin cosméticos | C-22, C-20 |
 | Repositorio | Monorepo público `JLowZ/The-Life-Game` | C-21 |
 
-## 3. Estado actual del repositorio (2026-11-26)
+## 3. Estado actual del repositorio (2026-11-27)
 
 | Elemento | Estado |
 |---|---|
-| Raíz | **Monorepo git** (rama `main`) conectado a `https://github.com/JLowZ/The-Life-Game`. Contiene el harness (`CLAUDE.md`, `docs/`, `.claude/rules/`), `LICENSE` (todos los derechos reservados), `.gitignore`, `.gitattributes`, `app/` y `backend/`. |
-| `app/` | **Fase 3 hecha:** TypeScript estricto + Expo Router (`src/app`, `"main": "expo-router/entry"`), SDK 58, RN 0.88.1, React 19.3.0. `app.json`: "The Life Game", `the-life-game`, `com.techphic.thelifegame`, esquema `thelifegame`. SQLite con la migración `001`, SecureStore, Zustand, Jest (`jest-expo`) y ESLint (flat config). `App.js` e `index.js` de la plantilla se retiraron. |
-| `backend/` | Dependencias instaladas. Sin scripts, sin entrada (`main: index.js` no existe) y sin `.gitignore`. |
-
-**Migración de la app en la Fase 3** (sin reemplazar el proyecto):
-
-- `App.js` y `index.js` se sustituyen por el punto de entrada de Expo Router (`"main": "expo-router/entry"`);
-- se añade `tsconfig.json` (configurado con `npx expo customize tsconfig.json` o lo que indique la documentación de SDK 58);
-- se instalan las dependencias con `npx expo install`.
-
-Desde ese momento, `app/AGENTS.md` se aplica completo.
+| Raíz | **Monorepo git** conectado a `https://github.com/JLowZ/The-Life-Game`. `main` + rama `feature/fases-1-a-6-base` (Fases 1–6, subida a GitHub). Harness (`CLAUDE.md`, `docs/`, `.claude/rules/`), `LICENSE`, `.gitignore`, `.gitattributes`, `app/` y `backend/`. |
+| `app/` | **Fases 3 a 7 hechas:** TypeScript estricto + Expo Router (SDK 58, RN 0.88.1, React 19.3.0). SQLite (migraciones `001` y `002`), SecureStore, Zustand, Jest y ESLint. Registro y sesión locales, HUD, hábitos, desafíos y misiones secundarias. Siguiente: Fases 8 y 9 (`docs/NEXT_STEPS.md`). |
+| `backend/` | Dependencias instaladas. Sin scripts ni entrada (Fase 2, después de la entrega, P-57). |
 
 ## 4. Frontend (`app/`)
 
-### 4.1. Estructura
+### 4.1. Estructura (real, 2026-11-27)
 
 ```text
-app/
-├── app.json                 name "The Life Game", slug "the-life-game", android.package "com.techphic.thelifegame"
-├── tsconfig.json            [Fase 3]
-├── assets/                  iconos, sprites pixel art (avatar, cosméticos), fuente pixel
-└── src/
-    ├── app/                 [Fase 3] RUTAS de Expo Router (solo envoltorios)
-    │   ├── _layout.tsx      raíz: proveedores, carga de la base de datos, redirección según la sesión
-    │   ├── (auth)/          welcome, login, register, onboarding (propósito, metas, avatar)
-    │   └── (tabs)/          _layout.tsx (pestañas + HUD), index (Home), map, shop, challenges
-    ├── screens/             [existe] contenido de cada pantalla
-    ├── components/          [existe] componentes reutilizables: Hud, HeartsBar, XpBar, HabitCard…
-    ├── state/               [Fase 3] stores de Zustand (player, habits, challenges, session)
-    ├── services/            [existe] casos de uso transaccionales
-    ├── domain/              [Fase 3+] reglas puras en TypeScript: gameDay, hp, rewards, challenges,
-    │                        classification, levels, closing, zeroHp
-    ├── database/            [existe] SQLite: apertura, migraciones locales, repositorios
-    ├── api/                 [Fase 3] cliente HTTP, autenticación, respaldo
-    ├── content/             [Fase 5+] messages.json, categorías, cosméticos
-    ├── config/              [existe] constantes de juego (R-21), tema pixel, entorno
-    └── utils/               [existe] utilidades genéricas
+app/src/
+├── app/                      RUTAS de Expo Router (solo envoltorios de una línea)
+│   ├── _layout.tsx           SQLiteProvider + migración; restaura la sesión; Stack.Protected por estado
+│   ├── (auth)/               welcome, login, register, onboarding (asistente de registro, R-34)
+│   ├── (tabs)/               _layout (HUD como cabecera + reconciliación), index, map, challenges, shop
+│   ├── settings.tsx          Ajustes (P-61)
+│   ├── habits.tsx            Mis hábitos (pasa al Mapa en la Fase 9)
+│   └── habit-form.tsx        crear/editar hábito (?id= para editar)
+├── screens/                  composición de cada pantalla
+├── components/               presentacionales (PixelButton, Hud, HeartsBar, XpBar, OccurrenceCard,
+│                             ChallengeCard, MissionModal…). HudHeader es el único contenedor.
+├── state/                    Zustand: useSessionStore, usePlayerStore, useHabitsStore,
+│                             useChallengesStore, useRegistrationDraftStore (solo memoria)
+├── services/                 casos de uso (una transacción cada uno) + deps.ts / platformDeps.ts
+├── domain/                   reglas puras: auth, onboarding, gameDay, level, hp, habits, schedule,
+│                             habitMarking, challenges, missions, categories, types
+├── database/                 la única capa con SQL: migrate, migrations/, repositories/, transaction,
+│                             secureSession, preferencesStore (kv-store), testing/
+├── content/                  textos: authTexts (aviso de privacidad), habitTexts, challengeTexts
+└── config/                   game.ts (R-21), audio.ts, theme.ts
 ```
+
+`api/` y `utils/` se crearán cuando hagan falta (Fase 2).
 
 **Dependencias entre capas:**
 
@@ -103,26 +97,34 @@ app (rutas) → screens/components → state → services → domain
 
 ### 4.2. Navegación (Expo Router)
 
-- `src/app/_layout.tsx` comprueba si hay un token en SecureStore:
-  - si **no** lo hay → `(auth)`;
-  - si lo hay → reconciliación → `(tabs)`.
-- `(tabs)/_layout.tsx` define las cuatro pestañas y pinta el **HUD** encima.
-- A 0 HP, las pantallas siguen accesibles en modo de consulta, pero sus acciones se deshabilitan con una explicación (P-14). Desafíos funciona con normalidad.
+- `useSessionStore.status`: `LOADING` → `SIGNED_OUT` | `NEEDS_ONBOARDING` | `SIGNED_IN`. Al abrir, `restoreSession` lee el `activeUserId` de SecureStore (P-57).
+- El `_layout.tsx` raíz y el de `(auth)` usan **`Stack.Protected`**: cambiar el estado basta para que Expo Router muestre la ruta correcta; nadie navega a mano al iniciar o cerrar sesión.
+- ⚠️ **Todo `Stack.Protected` lleva `redirectTo` con una ruta concreta.** En expo-router 58 el destino por defecto puede ser un grupo sin `index` (`/(auth)`), que se resuelve como `/` (protegida): bucle infinito y pantalla negra.
+- `(tabs)/_layout.tsx` pinta el **HUD** como cabecera de las cuatro pestañas, con el engranaje de Ajustes.
+- A 0 HP, las acciones bloqueadas se deshabilitan con una explicación (P-14).
 
 ### 4.3. Estado (Zustand)
 
 - **SQLite es la fuente de verdad.** Los stores son una proyección para la interfaz.
-- Tras cada caso de uso, el servicio refresca el store afectado (`usePlayerStore.getState().reload()`).
-- Los componentes leen con **selectores** (`usePlayerStore(s => s.hpHalfUnits)`) para volver a dibujarse solo cuando cambia lo que usan.
+- Los servicios recargan los stores al terminar: `refreshPlayerProfile`, `refreshToday`, `refreshChallenges`. Al cerrar sesión se vacían (`clearPlayerProfile`, `clearToday`, `clearChallenges`).
+- Los valores derivados (corazones, progreso de XP, tiempo restante) **no** se guardan: los calcula el dominio al pintar.
+- Los componentes leen con **selectores** (`usePlayerStore(s => s.profile)`).
+
+### 4.8. Servicios y dependencias inyectadas
+
+- Cada servicio recibe `AppDeps = { db, crypto, session, now }` (`services/deps.ts`). En el teléfono: expo-sqlite, expo-crypto, SecureStore y la hora del sistema (`platformDeps.ts`, `useAppDeps`). En las pruebas: `node:sqlite` en memoria, `node:crypto`, sesión en memoria y un **reloj controlable** (`services/testing/createTestDeps.ts`).
+- `services/ledgerEffects.ts` aplica Hojas, XP y HP (movimientos con clave de idempotencia + caché del perfil) dentro de una transacción ya abierta. Lo usan hábitos, desafíos y misiones.
+- `services/reconciliationService.ts` (`reconcile`) se ejecuta al entrar con una cuenta, al volver al primer plano (`appOpened: true`, con gracia) y al enfocar Inicio o Desafíos. La Fase 9 le añadirá el cierre de jornadas.
+- Ocurrencias con horizonte de 0 días (R-26): solo existe la fila de la jornada actual.
 
 ### 4.4. Persistencia local
 
 - `expo-sqlite`: todas las tablas del juego (`DATA_MODEL.md` §4). Cada caso de uso es **una transacción**.
 - `expo-secure-store`: el token de sesión (Entrega 1: el `activeUserId`, P-57). Nunca la contraseña.
 - **Transacciones:** `src/database/transaction.ts` (`runInTransaction`) pone en cola `withTransactionAsync`. No se usa `withExclusiveTransactionAsync` porque abre otra conexión donde no rige `PRAGMA foreign_keys` (documentación de expo-sqlite, SDK 58). Toda escritura del juego pasa por `runInTransaction`.
-- **Migraciones:** `src/database/migrate.ts` con `PRAGMA user_version`; la `001` es copia de `docs/schema/sqlite_v1.sql` y una prueba vigila que sigan iguales.
+- **Migraciones:** `src/database/migrate.ts` con `PRAGMA user_version`; la `001` es copia de `docs/schema/sqlite_v1.sql` (una prueba vigila que sigan iguales) y la `002` añade la categoría `PERSONAL_DEVELOPMENT` (P-59). Una migración publicada nunca se edita: se añade otra.
 - **Pruebas de la base de datos:** `src/database/testing/createTestDatabase.ts` implementa la misma interfaz con `node:sqlite` (Node 24), así Jest prueba contra SQLite real.
-- Preferencias no críticas: el kv-store de `expo-sqlite` o AsyncStorage (verificar la opción en SDK 58).
+- Preferencias no críticas (volumen de la música): kv-store de `expo-sqlite` (`database/preferencesStore.ts`), verificado en SDK 58. No se respaldan.
 - Las dependencias se instalan **siempre** con `npx expo install` y **tras aprobación**. Todas las citadas funcionan en Expo Go.
 
 ### 4.5. Comunicación con la API
@@ -277,9 +279,9 @@ El reloj `now` se **inyecta** siempre en el dominio, para poder probarlo.
 | Nivel | Qué cubre | Herramienta |
 |---|---|---|
 | Dominio | Todas las reglas, invariantes y escenarios ESC-xx | Jest (`jest-expo`) |
-| Servicios de la app | Casos de uso e idempotencia | Jest (SQLite en memoria o repositorios simulados) |
+| Servicios de la app | Casos de uso, idempotencia, límites de tiempo e INT-14 (saldos = suma de movimientos) | Jest con SQLite real en memoria y reloj controlable |
 | Backend | Autenticación, respaldo, validación y errores | Jest + supertest con una base de datos de pruebas |
-| Manual | Flujos completos en Expo Go (Android) | Lista de verificación de cada fase |
+| Manual | Flujos completos en Expo Go (Android) | `docs/NEXT_STEPS.md` (pruebas pendientes de la fase actual) |
 
 ## 12. Riesgos
 
@@ -300,6 +302,8 @@ El reloj `now` se **inyecta** siempre en el dominio, para poder probarlo.
 | Fecha | Cambio |
 |---|---|
 | 2026-11-25 | Versión inicial (Fase 0). |
+| 2026-11-27 | §3, §4.1–4.3 y §4.8 actualizados con la estructura real de las Fases 3 a 7. |
+| 2026-11-27 | Fase 7: `challengeService` (crear, completar, gracia y vencimiento), `missionService`, `reconciliationService` (al abrir, al volver al primer plano y al entrar en Inicio/Desafíos) y `ledgerEffects` (movimientos de Hojas, XP y HP compartidos). |
 | 2026-11-27 | Fase 6: ocurrencias con horizonte de 0 días (R-26); servicios `habitService` y `occurrenceService`; reloj inyectado en los servicios (`services/deps.ts`). |
 | 2026-11-26 | Fase 1: Entrega 1 sin backend (P-57); clave `habit-reward` con `<seq>` (`DATA_MODEL.md` §5). |
 | 2026-11-26 | Fase 3: estado de `app/`, transacciones en cola, migraciones, pruebas con `node:sqlite`, problemas del `&` en la ruta y `.npmrc`. |

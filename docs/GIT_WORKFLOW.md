@@ -210,7 +210,10 @@ lo que viene de la otra rama
 
 ## 8. Claude Code y Git
 
-- Claude **no hace commit ni push** si no se lo pedís. Cuando se lo pidáis, trabajará en una rama y abrirá o preparará el PR.
+- Claude **no hace commit ni push** si no se lo pedís. Cuando se lo pidáis, trabajará en una rama y abrirá el PR.
+- **Permisos (2026-11-27):** `.claude/settings.local.json` (personal, en `.gitignore`) permite a Claude `git add`, `git commit`, `git switch`, `git push` a ramas y `gh pr create/view/list`. Están **prohibidos** `push --force` y el push directo a `main`. Cada integrante que quiera lo mismo crea su propio archivo.
+- **GitHub CLI (`gh`)** instalada y autenticada en el PC de JLowZ (`winget install GitHub.cli` + `gh auth login`). En Git Bash, si `gh` no aparece en el PATH, está en `C:\Program Files\GitHub CLI\gh.exe` (reiniciar la terminal lo arregla).
+- Ramas de trabajo: `feature/fases-1-a-6-base` (subida) y, cuando se aprueben las pruebas, `feature/fase-7-desafios`.
 - Revisad siempre lo que cambió (`git diff` o el panel de VS Code) antes de aprobar.
 - Claude debe trabajar con el repositorio abierto **desde la raíz**.
 

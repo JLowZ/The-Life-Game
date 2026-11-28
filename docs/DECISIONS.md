@@ -44,7 +44,7 @@ El prefijo nunca cambia; cambia el **estado**. Cada cambio se propaga según `CL
 | C-15 | Mensajes desde un **JSON local**; la IA queda como opción futura, nunca como requisito. | Doc §5.2 | Confirmado |
 | C-16 | La sección se llama **Desafíos**; nunca "castigo". | Doc §9 | Confirmado |
 | C-17 | Los cosméticos se desbloquean por nivel y se compran con Hojas; equiparlos es gratis. | Doc §11.2 | Confirmado |
-| C-18 | HUD: avatar, nombre, nivel, XP, 10 corazones, racha y Hojas. Pestañas: Home, Mapa, Tienda y Desafíos. | Doc §5.1, §13 | Confirmado |
+| C-18 | HUD: avatar, nombre, nivel, XP, 10 corazones, racha y Hojas. Pestañas: Home, Mapa, Desafíos y Tienda (orden cambiado por P-62; el original ponía Tienda antes que Desafíos). | Doc §5.1, §13 | Confirmado |
 | C-19 | Contraseñas nunca en texto plano; token en almacenamiento seguro. | Doc §4.2 | Confirmado |
 | C-20 | **Entrega 1 (lunes 30-nov-2026), alcance mínimo.** **Imprescindible:** login, crear hábitos y asignarlos a días, HUD, recompensas por hábitos, desafíos por incumplimiento y por vidas perdidas, misiones secundarias y Mapa. **Sin cosméticos.** Se cuida que se vea bien, pero no es prioritario. Detalle en `PRODUCT_SPEC.md` §1.1. | Rev. 1 (A1), **Rev. 2 (final)** | Confirmado (actualizado) |
 | C-21 | Monorepo **público** `https://github.com/JLowZ/The-Life-Game`. Usuario del dueño: `JLowZ`. Colaboradores: `senkoxl` (Dylan) y David cuando cree su cuenta. | Rev. 1, Rev. 2 (16) | Confirmado |
@@ -101,6 +101,7 @@ El prefijo nunca cambia; cambia el **estado**. Cada cambio se propaga según `CL
 | R-32 | **Límites de texto del onboarding:** propósito obligatorio (máx. 200 caracteres), al menos 1 meta (máx. 100 caracteres cada una). Fase 4. | **Aprobada** (equipo, 2026-11-27) |
 | R-34 | **Registro como asistente:** el formulario de la cuenta solo valida y comprueba que el usuario y el correo estén libres; la cuenta, el perfil inicial, el propósito y las metas se crean **juntos al final del onboarding**, en una transacción. Permite volver atrás y corregir los datos y evita cuentas a medias. El borrador vive solo en memoria (contiene la contraseña). Las cuentas antiguas sin onboarding siguen pudiendo terminarlo. | **Adoptada** (equipo, 2026-11-27: "poder volver después de crear usuario y contraseña") |
 | R-35 | **Límites del formulario de hábitos:** nombre de máx. 60 caracteres, cantidad de 1 a 9.999, unidad libre de máx. 20 caracteres; las fechas concretas se eligen entre las próximas 4 semanas. Fase 6. | **Aprobada** (equipo, 2026-11-27) |
+| R-36 | **Misiones secundarias:** descripción de máx. 80 caracteres; la sugerencia usa, por orden, un hábito activo de la categoría (sesión extra de tamaño normal), una meta de la categoría o una sugerencia por defecto de la categoría (`content/challengeTexts.ts`). Fase 7. | **Aprobada** (equipo, 2026-11-28) |
 | R-33 | **Aviso de privacidad** (`app/src/content/authTexts.ts`), redactado en tono formal: responsable, datos, finalidad, ánimo como dato voluntario, almacenamiento local, terceros, derechos, menores y cambios. Describe la Entrega 1 (todo en el teléfono). Se revisa con el backend, el correo de soporte (P-40) y la ley aplicable (P-56); no sustituye una revisión jurídica. | **Aprobada** (equipo, 2026-11-27) |
 
 ### 2.1. Decisiones delegadas a Claude (justificación)
@@ -172,6 +173,7 @@ El prefijo nunca cambia; cambia el **estado**. Cada cambio se propaga según `CL
 | P-55 | Recomendaciones | Aprobadas en bloque. | Rev. 2 (15) |
 | P-59 | Categoría general | Se añade la categoría **Desarrollo personal general** (`PERSONAL_DEVELOPMENT`), que abarca todas las demás. Va la primera de la lista. Migración local `002` (la `001` no se edita). Necesitará también sus mensajes (C-33) cuando se redacten. | Equipo, 2026-11-27 |
 | P-61 | Ajustes | Pantalla **Ajustes**, que se abre con un **engranaje en el HUD de las cuatro pestañas** (el equipo lo amplió desde Inicio el 2026-11-27): cambiar el **nombre de usuario** (R-31, único), editar el **texto y la categoría de las metas**, **volumen de la música** y **Cerrar sesión** (sale de Inicio). | Equipo, 2026-11-27 |
+| P-62 | Orden de las pestañas | **Home → Mapa → Desafíos → Tienda** (se intercambian Desafíos y Tienda). Solo cambia el orden de la barra; no afecta a ninguna regla del juego. Modifica C-18 y RN-NAV-01 (CT-26). | Equipo, 2026-11-28 |
 | P-58 | Ciclo de vida de las misiones secundarias | (1) Una misión **aceptada y sin completar al cerrar la jornada** pasa a `ABANDONED`, sin pérdida de HP ni de Hojas. (2) El usuario puede **abandonarla a mano**. (3) Las abandonadas **no cuentan** para el máximo de 3 por jornada. (4) Las misiones secundarias **no cuentan** en el porcentaje del Mapa ni en la racha: el porcentaje es solo de las misiones del día (hábitos programados). | Equipo, 2026-11-26 |
 | P-57 | Entrega 1 sin backend | **La Entrega 1 no lleva backend** (indicación del profesor). La app funciona sola en el teléfono: registro e inicio de sesión **locales** en SQLite (hash SHA-256 con sal, `expo-crypto`), sesión = `activeUserId` en SecureStore, sin respaldo. El backend (Fase 2) se hace **después** de tener la app funcional, con la IP, el puerto, el usuario y la contraseña que dará el profesor. Afecta a C-04, R-29, RN-AUTH-05, RN-AUTH-08 y RN-CLOSE-08 solo durante la Entrega 1 (CT-25). | Equipo, 2026-11-26 (profesor) |
 
@@ -241,6 +243,7 @@ El prefijo nunca cambia; cambia el **estado**. Cada cambio se propaga según `CL
 | CT-23 | Deshacer Día Finalizado | Interpretación de la Rev. 1: no se deshace | **Se puede deshacer hasta las 04:00** | Rev. 2 | C-29 |
 | CT-24 | Alcance de la Entrega 1 | Rev. 1 (A1): incluía 2–3 cosméticos y la creación del avatar | Sin cosméticos ni creación de avatar; foco en la base | Rev. 2 | C-20 |
 | CT-25 | Servidor en la Entrega 1 | C-04 / R-29: el servidor autentica y respalda | Entrega 1 **solo local**: autenticación en SQLite y sin respaldo. El backend llega después | Profesor (2026-11-26) | P-57 |
+| CT-26 | Orden de las pestañas | Doc §13 / C-18: Home, Mapa, Tienda, Desafíos | Home, Mapa, **Desafíos, Tienda** | Equipo (2026-11-28) | P-62 |
 
 ---
 
@@ -264,6 +267,8 @@ El prefijo nunca cambia; cambia el **estado**. Cada cambio se propaga según `CL
 | 2026-11-25 | Revisión 2: C-29..C-33; resueltas P-03, P-07, P-12, P-15, P-16, P-42, P-48, P-49, P-50, P-53, P-54 y P-55; nueva P-56; CT-22..CT-24; alcance mínimo de la Entrega 1; recomendaciones aprobadas en bloque. |
 | 2026-11-26 | Fase 1: P-57 (Entrega 1 sin backend) y CT-25. P-36 deja de afectar a la Entrega 1. |
 | 2026-11-26 | P-58: ciclo de vida de las misiones secundarias (abandono, límite de 3 y Mapa). |
+| 2026-11-27 | Fase 7: R-36 propuesta (misiones secundarias). |
+| 2026-11-28 | R-36 aprobada. P-62 y CT-26: pestañas en el orden Home, Mapa, Desafíos, Tienda. |
 | 2026-11-27 | R-35 aprobada. Eliminar un hábito conserva la misión de hoy (RN-HAB-06) con el aviso "Hábito eliminado · última vez hoy". "Mis hábitos" pasa al Mapa en la Fase 9. |
 | 2026-11-27 | Fase 6: R-26 concretada (horizonte de 0 días) y R-35 propuesta (límites del formulario de hábitos). |
 | 2026-11-27 | P-59 (categoría Desarrollo personal general), P-61 (Ajustes), P-60 aplazada (música de Nemorphic) y R-34 (registro como asistente). |
