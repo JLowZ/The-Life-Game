@@ -1,5 +1,5 @@
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { DaySummaryCard } from '@/components/DaySummaryCard';
@@ -11,8 +11,9 @@ import { formatGameDateShort, formatQuantity } from '@/content/habitTexts';
 import { monthOf, shiftMonth, yearOf } from '@/domain/calendar';
 import { getGameDate } from '@/domain/gameDay';
 import { isZeroHp, ZERO_HP_SCHEDULE_MESSAGE } from '@/domain/hp';
+import { toggleWeekday } from '@/domain/schedule';
 import type { GameDate, HabitOccurrence } from '@/domain/types';
-import { listHabits, type HabitWithSchedule } from '@/services/habitService';
+import { listHabits, toggleHabitWeekday, type HabitWithSchedule } from '@/services/habitService';
 import { loadMapDay, loadMapMonth, type MapDayDetail, type MapMonth } from '@/services/mapService';
 import { loadPurpose } from '@/services/profileService';
 import { useAppDeps } from '@/services/useAppDeps';
@@ -43,6 +44,8 @@ export function MapScreen() {
   const [detail, setDetail] = useState<MapDayDetail | null>(null);
   const [habits, setHabits] = useState<HabitWithSchedule[]>([]);
   const [purpose, setPurpose] = useState<string | null>(null);
+  /** Toques de casilla aún guardándose: se recarga al terminar el último (evita parpadeos). */
+  const pendingToggles = useRef(0);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(
@@ -97,6 +100,23 @@ export function MapScreen() {
     load(next, selected).catch(() => undefined);
   }
 
+  /** Casilla de la tabla: cambio optimista y después se recarga desde SQLite. */
+  async function handleToggle(habitId: string, weekdayIndex: number) {
+    setHabits((rows) =>
+      rows.map((row) => (row.habit.id === habitId ? { ...row, schedule: toggleWeekday(row.schedule, weekdayIndex) } : row)),
+    );
+    pendingToggles.current += 1;
+    try {
+      const result = await toggleHabitWeekday(deps, currentUserId, habitId, weekdayIndex);
+      if (!result.ok) setError(result.error);
+    } catch {
+      setError('No se pudo guardar la programación.');
+    } finally {
+      pendingToggles.current -= 1;
+      if (pendingToggles.current === 0) await load(month, selected);
+    }
+  }
+
   const scheduleBlocked = hpHalfUnits !== undefined && isZeroHp(hpHalfUnits) ? ZERO_HP_SCHEDULE_MESSAGE : undefined;
 
   return (
@@ -141,6 +161,7 @@ export function MapScreen() {
         <ScheduleTable
           rows={habits}
           disabledReason={scheduleBlocked}
+          onToggle={handleToggle}
           onEdit={(id) => router.push({ pathname: '/habit-form', params: { id } })}
         />
       )}

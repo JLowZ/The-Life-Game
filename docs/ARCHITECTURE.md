@@ -271,6 +271,8 @@ El reloj `now` se **inyecta** siempre en el dominio, para poder probarlo.
    - El teléfono y el PC deben estar en la misma Wi-Fi.
    - `EXPO_PUBLIC_API_URL` con la IP de `ipconfig`.
    - El Firewall de Windows debe permitir Node en redes privadas.
+   - Sin la misma Wi-Fi (p. ej., con datos móviles): `npx expo start --tunnel`.
+   - **Si Expo Go muestra `Cannot find native module 'ExpoSQLite'`** (y en la terminal salen avisos `Route "…" is missing the required default export`): casi siempre es la **caché de Metro**, no el código. `Ctrl+C` → `npx expo start -c`. Pasó el 2026-11-28 tras reabrir la sesión con `--tunnel`; con `-c` se arregló. Los avisos de rutas son un efecto en cadena del primer error. Solo si persiste, comprobar en Expo Go → Ajustes que admite el **SDK 58** (Play Store puede actualizarla; desactivar la actualización automática antes de una entrega). Reinstalar Expo Go borra los datos locales.
 4. **Ruta del proyecto sin espacios ni `&`** (`C:\Users\USUARIO\Desktop\Estudio\TheLifeGame`, desde el 2026-11-26). Antes estaba en `Workgroup & Scrum` y el `&` rompía `npx` en Windows: los `.cmd` de `node_modules/.bin` cortan la ruta en el `&`. **Cada miembro del equipo debe clonar el repositorio en una ruta sin `&`.**
 5. Tras clonar: `cd app` → `npm ci` (usa `app/package-lock.json` y `app/.npmrc`).
 6. **`app/.npmrc` con `legacy-peer-deps=true`:** `expo-router` arrastra `@radix-ui` (solo web), que pide `react-dom` ≥ 19.3.1, y SDK 58 fija React 19.3.0. Como la app es solo Android, no se instalan dependencias pares de web. Sin este archivo, `npm install` falla con `ERESOLVE`. El paquete de Android se compiló sin `react-dom` (`expo export --platform android`).
@@ -303,6 +305,7 @@ El reloj `now` se **inyecta** siempre en el dominio, para poder probarlo.
 | Fecha | Cambio |
 |---|---|
 | 2026-11-25 | Versión inicial (Fase 0). |
+| 2026-11-28 | §10: solución al error `Cannot find native module 'ExpoSQLite'` (caché de Metro, `npx expo start -c`). |
 | 2026-11-28 | Fases 8 y 9: `dayCloseService` (cierre manual y automático, deshacer), `mapService`; la reconciliación cierra primero las jornadas pendientes, va en cola y trata la primera llamada tras arrancar como apertura (R-37). |
 | 2026-11-27 | §3, §4.1–4.3 y §4.8 actualizados con la estructura real de las Fases 3 a 7. |
 | 2026-11-27 | Fase 7: `challengeService` (crear, completar, gracia y vencimiento), `missionService`, `reconciliationService` (al abrir, al volver al primer plano y al entrar en Inicio/Desafíos) y `ledgerEffects` (movimientos de Hojas, XP y HP compartidos). |

@@ -85,3 +85,15 @@ export function validateSchedule(input: ScheduleInput, today: GameDate): Schedul
   }
   return { ok: true, value: { type: 'SPECIFIC_DATES', dates } };
 }
+
+/**
+ * Casilla de la tabla de programación del Mapa: marca o desmarca un día de la
+ * semana (0 = lunes … 6 = domingo). Desde "sin días" o desde fechas concretas
+ * pasa a semanal con solo ese día. Si no queda ningún día, devuelve null
+ * (el hábito queda sin programar).
+ */
+export function toggleWeekday(schedule: ScheduleInput | null, index: number): ScheduleInput | null {
+  if (!Number.isInteger(index) || index < 0 || index > 6) throw new RangeError(`Día inválido: ${index}`);
+  const mask = schedule?.type === 'WEEKLY' ? schedule.weekdays ^ weekdayBit(index) : weekdayBit(index);
+  return mask === 0 ? null : { type: 'WEEKLY', weekdays: mask };
+}

@@ -13,7 +13,7 @@ import { runInTransaction } from '@/database/transaction';
 import { getGameDate } from '@/domain/gameDay';
 import { validateHabit, type HabitField, type HabitInput } from '@/domain/habits';
 import { isZeroHp, ZERO_HP_SCHEDULE_MESSAGE } from '@/domain/hp';
-import { addDays, validateSchedule, type ScheduleInput } from '@/domain/schedule';
+import { addDays, toggleWeekday, validateSchedule, type ScheduleInput } from '@/domain/schedule';
 import type { GameDate, Habit, HabitSchedule } from '@/domain/types';
 
 import type { AppDeps } from './deps';
@@ -186,4 +186,34 @@ export async function getHabit(deps: AppDeps, userId: string, habitId: string): 
   const today = getGameDate(deps.now());
   const schedules = await listSchedulesForHabit(deps.db, habit.id, today);
   return { habit, schedule: summarizeSchedules(schedules, today) };
+}
+
+export type ToggleWeekdayResult = { ok: true; schedule: ScheduleInput | null } | { ok: false; error: string };
+
+/**
+ * Tabla de programación del Mapa: marca o desmarca un día de la semana de un
+ * hábito con un toque. Igual que editar (RN-HAB-07): solo cambia desde hoy;
+ * si hoy queda marcado, la misión aparece ya; si se desmarca, la de hoy se
+ * conserva (RN-HAB-05). Bloqueado a 0 HP (RN-NAV-04).
+ */
+export async function toggleHabitWeekday(
+  deps: AppDeps,
+  userId: string,
+  habitId: string,
+  weekdayIndex: number,
+): Promise<ToggleWeekdayResult> {
+  const now = deps.now();
+  const today = getGameDate(now);
+  const nowIso = now.toISOString();
+  return runInTransaction(deps.db, async (): Promise<ToggleWeekdayResult> => {
+    if (await isBlockedAtZeroHp(deps, userId)) return { ok: false, error: ZERO_HP_SCHEDULE_MESSAGE };
+    const habit = await findActiveHabit(deps.db, userId, habitId);
+    if (!habit) return { ok: false, error: 'Este hábito ya no existe.' };
+    const current = summarizeSchedules(await listSchedulesForHabit(deps.db, habitId, today), today);
+    const next = toggleWeekday(current, weekdayIndex);
+    await closeSchedulesFrom(deps.db, { habitId, today, yesterday: addDays(today, -1), now: nowIso });
+    if (next) await insertScheduleRows(deps, habitId, next, today, nowIso);
+    await ensureOccurrencesForDate(deps, userId, today);
+    return { ok: true, schedule: next };
+  });
 }

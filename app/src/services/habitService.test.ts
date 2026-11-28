@@ -1,10 +1,10 @@
 import { listOccurrencesForDate } from '@/database/repositories/occurrencesRepository';
 import { sumLedgers } from '@/database/repositories/ledgerRepository';
 import { getPlayerProfile } from '@/database/repositories/playerProfilesRepository';
-import { ALL_WEEKDAYS_MASK, maskFromWeekdays } from '@/domain/schedule';
+import { ALL_WEEKDAYS_MASK, maskFromWeekdays, toggleWeekday } from '@/domain/schedule';
 
 import { registerUser } from './authService';
-import { createHabit, deleteHabit, getHabit, listHabits, updateHabit } from './habitService';
+import { createHabit, deleteHabit, getHabit, listHabits, toggleHabitWeekday, updateHabit } from './habitService';
 import { ensureOccurrencesForDate, loadToday, markOccurrence, undoMark } from './occurrenceService';
 import { createTestDeps } from './testing/createTestDeps';
 
@@ -247,5 +247,56 @@ describe('editar y eliminar (RN-HAB-05..07, ESC-18)', () => {
     const { habitId } = await createEveryDayHabit(deps, userId);
     expect((await updateHabit(deps, 'otra', habitId, READING, EVERY_DAY)).ok).toBe(false);
     expect(await deleteHabit(deps, 'otra', habitId)).toBe(false);
+  });
+});
+
+describe('programar con casillas en el Mapa (RN-HAB-03, RN-HAB-07)', () => {
+  const SATURDAY_INDEX = 5;
+
+  it('toggleWeekday: marca, desmarca, pasa de fechas a semanal y deja null si no queda ningún día', () => {
+    expect(toggleWeekday(null, 0)).toEqual({ type: 'WEEKLY', weekdays: 1 });
+    expect(toggleWeekday({ type: 'WEEKLY', weekdays: 0b11 }, 1)).toEqual({ type: 'WEEKLY', weekdays: 1 });
+    expect(toggleWeekday({ type: 'WEEKLY', weekdays: 1 }, 0)).toBeNull();
+    expect(toggleWeekday({ type: 'SPECIFIC_DATES', dates: [TOMORROW] }, 2)).toEqual({ type: 'WEEKLY', weekdays: 4 });
+    expect(() => toggleWeekday(null, 7)).toThrow(RangeError);
+  });
+
+  it('un toque marca el sábado: mañana aparece; otro toque lo quita; el historial no cambia', async () => {
+    const { deps, userId } = await setup();
+    const created = await createHabit(deps, userId, READING, { type: 'WEEKLY', weekdays: maskFromWeekdays([0]) });
+    if (!created.ok) throw new Error('alta fallida');
+
+    expect(await toggleHabitWeekday(deps, userId, created.habitId, SATURDAY_INDEX)).toEqual({
+      ok: true,
+      schedule: { type: 'WEEKLY', weekdays: maskFromWeekdays([0, SATURDAY_INDEX]) },
+    });
+    expect((await getHabit(deps, userId, created.habitId))?.schedule).toEqual({
+      type: 'WEEKLY',
+      weekdays: maskFromWeekdays([0, SATURDAY_INDEX]),
+    });
+    await toggleHabitWeekday(deps, userId, created.habitId, SATURDAY_INDEX);
+    expect((await getHabit(deps, userId, created.habitId))?.schedule).toEqual({ type: 'WEEKLY', weekdays: maskFromWeekdays([0]) });
+  });
+
+  it('marcar hoy crea la misión de hoy; desmarcarlo la conserva (RN-HAB-05); sin días queda sin programar', async () => {
+    const { deps, userId } = await setup();
+    const created = await createHabit(deps, userId, READING, { type: 'WEEKLY', weekdays: maskFromWeekdays([0]) });
+    if (!created.ok) throw new Error('alta fallida');
+    expect(await listOccurrencesForDate(deps.db, userId, TODAY)).toHaveLength(0);
+
+    await toggleHabitWeekday(deps, userId, created.habitId, FRIDAY_INDEX);
+    expect(await listOccurrencesForDate(deps.db, userId, TODAY)).toHaveLength(1);
+    await toggleHabitWeekday(deps, userId, created.habitId, FRIDAY_INDEX);
+    expect(await listOccurrencesForDate(deps.db, userId, TODAY)).toHaveLength(1);
+
+    expect(await toggleHabitWeekday(deps, userId, created.habitId, 0)).toEqual({ ok: true, schedule: null });
+    expect((await getHabit(deps, userId, created.habitId))?.schedule).toBeNull();
+  });
+
+  it('a 0 HP no se programa (RN-NAV-04)', async () => {
+    const { deps, userId } = await setup();
+    const { habitId } = await createEveryDayHabit(deps, userId);
+    await deps.db.runAsync('UPDATE player_profiles SET hp_half_units = 0 WHERE user_id = ?', [userId]);
+    expect(await toggleHabitWeekday(deps, userId, habitId, 0)).toEqual({ ok: false, error: expect.stringContaining('Sin vidas') });
   });
 });

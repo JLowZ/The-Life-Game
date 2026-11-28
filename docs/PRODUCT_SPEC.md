@@ -331,7 +331,7 @@ Porcentaje = cumplidos / programados × 100. Los desafíos no cuentan.
 
 ### 11.2. Programación
 
-Una tabla bajo el calendario permite elegir los días o fechas de cada hábito. Bloqueada a 0 HP.
+Una tabla bajo el calendario cruza los hábitos (filas) con los días de la semana (columnas). Cada cruce es una casilla: **un toque pone o quita el chulo** y el cambio cuenta desde hoy (RN-HAB-07). El nombre del hábito abre el formulario para editar el resto; las fechas concretas se eligen en el formulario. Bloqueada a 0 HP.
 
 ---
 

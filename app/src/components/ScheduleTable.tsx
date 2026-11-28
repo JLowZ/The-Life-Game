@@ -1,84 +1,123 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { border, colors, MIN_TOUCH_SIZE, spacing } from '@/config/theme';
-import { formatGameDateShort, WEEKDAY_SHORT } from '@/content/habitTexts';
+import { border, colors, spacing } from '@/config/theme';
+import { formatGameDateShort, formatQuantity, WEEKDAY_LONG, WEEKDAY_SHORT } from '@/content/habitTexts';
 import { weekdaysFromMask, type ScheduleInput } from '@/domain/schedule';
 import type { Habit } from '@/domain/types';
 
 interface ScheduleTableProps {
   rows: { habit: Habit; schedule: ScheduleInput | null }[];
-  /** Si no se puede programar (0 HP), explica por qué y bloquea la tabla. */
+  /** Si no se puede programar (0 HP), explica por qué y bloquea las casillas. */
   disabledReason?: string;
+  onToggle: (habitId: string, weekdayIndex: number) => void;
   onEdit: (habitId: string) => void;
 }
 
 const MAX_DATES_SHOWN = 3;
+const CELL_SIZE = 44;
 
 /**
- * Tabla de programación del Mapa (PRODUCT_SPEC §11.2, RN-HAB-03): un hábito
- * por fila y los días de la semana en columnas. Tocar una fila abre el
- * formulario del hábito para cambiar su programación o sus valores.
+ * Tabla de programación del Mapa (PRODUCT_SPEC §11.2, RN-HAB-03): hábitos en
+ * filas y días de la semana en columnas. Cada cruce es una casilla: un toque
+ * pone o quita el chulo (✓). El nombre abre el formulario para editar el resto.
  */
-export function ScheduleTable({ rows, disabledReason, onEdit }: ScheduleTableProps) {
+export function ScheduleTable({ rows, disabledReason, onToggle, onEdit }: ScheduleTableProps) {
+  const blocked = Boolean(disabledReason);
   return (
     <View style={styles.table}>
-      <View style={styles.row}>
-        <Text style={[styles.habitCell, styles.head]}>Hábito</Text>
+      <View style={styles.daysRow}>
         {WEEKDAY_SHORT.map((day) => (
-          <Text key={day} style={[styles.dayCell, styles.head]}>
-            {day.charAt(0)}
+          <Text key={day} style={styles.dayHead}>
+            {day}
           </Text>
         ))}
       </View>
+
       {rows.map(({ habit, schedule }) => {
-        const weekly = schedule?.type === 'WEEKLY' ? weekdaysFromMask(schedule.weekdays) : null;
+        const days = schedule?.type === 'WEEKLY' ? weekdaysFromMask(schedule.weekdays) : [];
         const dates = schedule?.type === 'SPECIFIC_DATES' ? schedule.dates : null;
         return (
-          <Pressable
-            key={habit.id}
-            accessibilityRole="button"
-            accessibilityLabel={`Editar la programación de ${habit.name}`}
-            accessibilityState={{ disabled: Boolean(disabledReason) }}
-            disabled={Boolean(disabledReason)}
-            onPress={() => onEdit(habit.id)}
-            style={({ pressed }) => [styles.row, styles.bodyRow, pressed && styles.pressed]}
-          >
-            <Text style={styles.habitCell} numberOfLines={2}>
-              {habit.name}
-            </Text>
-            {dates ? (
-              <Text style={styles.datesCell}>
-                {dates.slice(0, MAX_DATES_SHOWN).map(formatGameDateShort).join(', ')}
-                {dates.length > MAX_DATES_SHOWN ? ` y ${dates.length - MAX_DATES_SHOWN} más` : ''}
+          <View key={habit.id} style={styles.habitBlock}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Editar ${habit.name}`}
+              onPress={() => onEdit(habit.id)}
+              style={({ pressed }) => [styles.nameRow, pressed && styles.pressed]}
+            >
+              <Text style={styles.name} numberOfLines={1}>
+                {habit.name}
               </Text>
-            ) : (
-              WEEKDAY_SHORT.map((day, index) => {
-                const on = weekly?.includes(index) ?? false;
+              <Text style={styles.quantity}>{formatQuantity(habit.targetQuantity, habit.unit)} ✎</Text>
+            </Pressable>
+            {dates ? (
+              <Text style={styles.dates}>
+                Fechas: {dates.slice(0, MAX_DATES_SHOWN).map(formatGameDateShort).join(', ')}
+                {dates.length > MAX_DATES_SHOWN ? ` y ${dates.length - MAX_DATES_SHOWN} más` : ''}. Marca días para
+                repetirlo cada semana.
+              </Text>
+            ) : null}
+            <View style={styles.daysRow}>
+              {WEEKDAY_SHORT.map((day, index) => {
+                const checked = days.includes(index);
                 return (
-                  <Text key={day} style={[styles.dayCell, on ? styles.on : styles.off]} accessibilityLabel={on ? day : undefined}>
-                    {on ? '■' : '·'}
-                  </Text>
+                  <Pressable
+                    key={day}
+                    accessibilityRole="checkbox"
+                    accessibilityLabel={`${habit.name} los ${WEEKDAY_LONG[index]}`}
+                    accessibilityState={{ checked, disabled: blocked }}
+                    disabled={blocked}
+                    onPress={() => onToggle(habit.id, index)}
+                    style={({ pressed }) => [
+                      styles.cell,
+                      checked && styles.cellChecked,
+                      pressed && styles.cellPressed,
+                      blocked && styles.cellBlocked,
+                    ]}
+                  >
+                    {checked ? <Text style={styles.check}>✓</Text> : null}
+                  </Pressable>
                 );
-              })
-            )}
-          </Pressable>
+              })}
+            </View>
+          </View>
         );
       })}
-      {disabledReason ? <Text style={styles.reason}>{disabledReason}</Text> : null}
+
+      <Text style={styles.hint}>
+        {disabledReason ?? 'Toca una casilla para elegir los días. Los cambios cuentan desde hoy.'}
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  table: { backgroundColor: colors.surface, borderColor: colors.navy, borderWidth: border.width },
-  row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.sm, gap: spacing.xs },
-  bodyRow: { minHeight: MIN_TOUCH_SIZE, borderTopColor: colors.silver, borderTopWidth: 1 },
+  table: {
+    backgroundColor: colors.surface,
+    borderColor: colors.navy,
+    borderWidth: border.width,
+    padding: spacing.sm,
+    gap: spacing.sm,
+  },
+  daysRow: { flexDirection: 'row', gap: spacing.xs },
+  dayHead: { flex: 1, textAlign: 'center', color: colors.textMuted, fontSize: 12, fontWeight: 'bold' },
+  habitBlock: { gap: spacing.xs, borderTopColor: colors.silver, borderTopWidth: 1, paddingTop: spacing.sm },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, minHeight: 32 },
   pressed: { backgroundColor: colors.cream },
-  head: { color: colors.textMuted, fontWeight: 'bold', paddingVertical: spacing.xs },
-  habitCell: { flex: 3, color: colors.navy, fontSize: 14, fontWeight: 'bold' },
-  dayCell: { flex: 1, textAlign: 'center', fontSize: 14 },
-  datesCell: { flex: 7, color: colors.leaf, fontSize: 12, fontWeight: 'bold' },
-  on: { color: colors.leaf, fontWeight: 'bold' },
-  off: { color: colors.silver },
-  reason: { color: colors.error, fontSize: 13, padding: spacing.sm },
+  name: { flex: 1, color: colors.navy, fontSize: 15, fontWeight: 'bold' },
+  quantity: { color: colors.textMuted, fontSize: 12 },
+  dates: { color: colors.gourd, fontSize: 12 },
+  cell: {
+    flex: 1,
+    height: CELL_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: colors.navy,
+    borderWidth: 2,
+    backgroundColor: colors.background,
+  },
+  cellChecked: { backgroundColor: colors.leafLight, borderColor: colors.leaf },
+  cellPressed: { backgroundColor: colors.cream },
+  cellBlocked: { opacity: 0.5 },
+  check: { color: colors.navy, fontSize: 20, fontWeight: 'bold' },
+  hint: { color: colors.textMuted, fontSize: 12 },
 });
