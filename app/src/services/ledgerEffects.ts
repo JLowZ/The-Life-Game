@@ -63,6 +63,41 @@ export async function applyRewards(
   return { ...profile, ...balances };
 }
 
+/**
+ * Gasto de Hojas (canje; después, cosméticos). Solo toca las Hojas: la XP y el
+ * nivel no cambian (RN-ECO-04). Devuelve el id del movimiento para enlazar el canje.
+ */
+export async function applySpend(
+  deps: AppDeps,
+  params: {
+    profile: PlayerProfile;
+    leavesDelta: number;
+    type: Extract<CurrencyTransactionType, 'REWARD_REDEMPTION' | 'COSMETIC_PURCHASE'>;
+    sourceType: string;
+    sourceId: string;
+    idempotencyKey: string;
+    nowIso: string;
+  },
+): Promise<{ profile: PlayerProfile; transactionId: string }> {
+  const { profile } = params;
+  if (params.leavesDelta >= 0) throw new RangeError('Un gasto debe ser negativo.');
+  const balances = applyBalanceDeltas(profile, params.leavesDelta, 0); // INT-05: lanza si quedara negativo
+  const transactionId = deps.crypto.randomUUID();
+  await insertCurrencyTransaction(deps.db, {
+    id: transactionId,
+    userId: profile.userId,
+    amount: params.leavesDelta,
+    type: params.type,
+    sourceType: params.sourceType,
+    sourceId: params.sourceId,
+    idempotencyKey: params.idempotencyKey,
+    balanceAfter: balances.mateLeavesBalance,
+    now: params.nowIso,
+  });
+  await updatePlayerBalances(deps.db, { userId: profile.userId, ...balances, now: params.nowIso });
+  return { profile: { ...profile, ...balances }, transactionId };
+}
+
 /** Cambia el HP con su movimiento en el libro (INT-02, INT-03). Devuelve el perfil y el id del movimiento. */
 export async function applyHpChange(
   deps: AppDeps,

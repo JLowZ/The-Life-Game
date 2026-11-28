@@ -180,3 +180,20 @@ export interface DailySummary {
   closeSource: CloseSource;
   closedAt: IsoTimestamp;
 }
+
+/** Recompensa de la vida real creada por el usuario (rewards, type = REAL_LIFE). */
+export interface RealReward {
+  id: string;
+  userId: string;
+  name: string;
+  costMateLeaves: number;
+}
+
+/** Canje de una recompensa real (reward_redemptions). Inmutable. */
+export interface RewardRedemption {
+  id: string;
+  rewardId: string;
+  nameSnapshot: string;
+  costSnapshot: number;
+  redeemedAt: IsoTimestamp;
+}

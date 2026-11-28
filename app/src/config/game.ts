@@ -68,6 +68,14 @@ export const MISSION_DESCRIPTION_MAX_LENGTH = 80;
 
 /** Recompensas reales (C-30). */
 export const MIN_REAL_REWARD_COST = 20;
+/**
+ * Límites técnicos del formulario de recompensas (R-38, propuesta de la Fase 10).
+ * El costo no tiene máximo de negocio (C-30); el tope solo evita números absurdos.
+ */
+export const REWARD_NAME_MAX_LENGTH = 40;
+export const REWARD_MAX_COST = 99999;
+/** Canjes recientes que muestra la Tienda. */
+export const RECENT_REDEMPTIONS_SHOWN = 5;
 
 /** Curva de niveles: XP total para el nivel n = A·n² + B·n (P-03). */
 export const LEVEL_CURVE = { a: 40, b: 60 } as const;
