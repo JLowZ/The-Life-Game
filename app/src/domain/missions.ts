@@ -25,7 +25,7 @@ export type AcceptMissionDecision =
       value: { categoryId: HabitCategoryId; description: string; targetQuantity: number; unit: string };
       reward: { leaves: number; xp: number };
     }
-  | { ok: false; error: 'ZERO_HP' | 'DAILY_LIMIT' }
+  | { ok: false; error: 'ZERO_HP' | 'DAILY_LIMIT' | 'DAY_FINISHED' }
   | { ok: false; error: 'INVALID'; fields: Partial<Record<MissionField, string>> };
 
 /**
@@ -37,7 +37,10 @@ export function decideAcceptMission(context: {
   /** Misiones de hoy que NO están abandonadas. */
   activeOrCompletedToday: number;
   hpHalfUnits: HpHalfUnits;
+  /** Ya se pulsó Día Finalizado hoy (RN-CLOSE-09: la jornada cerrada no cambia). */
+  dayClosed?: boolean;
 }): AcceptMissionDecision {
+  if (context.dayClosed) return { ok: false, error: 'DAY_FINISHED' };
   if (context.hpHalfUnits <= 0) return { ok: false, error: 'ZERO_HP' };
   if (context.activeOrCompletedToday >= MAX_DAILY_MISSIONS) return { ok: false, error: 'DAILY_LIMIT' };
 
@@ -68,19 +71,22 @@ export function decideAcceptMission(context: {
   };
 }
 
-export type MissionActionError = 'NOT_ACCEPTED' | 'DAY_CLOSED' | 'ZERO_HP';
+export type MissionActionError = 'NOT_ACCEPTED' | 'DAY_CLOSED' | 'DAY_FINISHED' | 'ZERO_HP';
 
 /** RN-MIS-03: la recompensa se acredita una sola vez (mission-reward:<id>). */
 export function decideCompleteMission(context: {
   mission: UserMission;
   currentGameDate: GameDate;
   hpHalfUnits: HpHalfUnits;
+  /** Ya se pulsó Día Finalizado hoy: la misión espera (o se abandona a las 04:00). */
+  dayClosed?: boolean;
 }):
   | { ok: true; effects: { leavesDelta: number; xpDelta: number; rewardKey: string } }
   | { ok: false; error: MissionActionError } {
   const { mission } = context;
   if (mission.status !== 'ACCEPTED') return { ok: false, error: 'NOT_ACCEPTED' };
   if (mission.gameDate !== context.currentGameDate) return { ok: false, error: 'DAY_CLOSED' };
+  if (context.dayClosed) return { ok: false, error: 'DAY_FINISHED' };
   if (context.hpHalfUnits <= 0) return { ok: false, error: 'ZERO_HP' };
   return {
     ok: true,
@@ -102,4 +108,5 @@ export const MISSION_ERROR_MESSAGES: Record<'ZERO_HP' | 'DAILY_LIMIT' | MissionA
   DAILY_LIMIT: `Ya tienes ${MAX_DAILY_MISSIONS} misiones secundarias hoy. ¡Vuelve mañana!`,
   NOT_ACCEPTED: 'Esta misión ya no está activa.',
   DAY_CLOSED: 'Esta misión era de una jornada que ya terminó.',
+  DAY_FINISHED: 'Ya finalizaste la jornada de hoy. Si quieres seguir, deshaz el Día Finalizado.',
 };

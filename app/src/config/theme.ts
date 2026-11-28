@@ -40,3 +40,16 @@ export const border = {
 
 /** Zona táctil mínima (accesibilidad, frontend.md §9). */
 export const MIN_TOUCH_SIZE = 48;
+
+/**
+ * Colores de la clasificación del día en el Mapa (RN-MAP-07). Siempre van con
+ * icono y texto (CLASSIFICATION_LABELS): el color nunca es la única pista.
+ */
+export const classificationColors = {
+  PERFECT: { background: '#D9A441', text: '#1F2A44' },
+  VERY_GOOD: { background: '#4E8A3A', text: '#FFFFFF' },
+  PARTIAL: { background: '#8FB3D0', text: '#1F2A44' },
+  CRITICAL: { background: '#C8413B', text: '#FFFFFF' },
+  NO_ACTIVITY: { background: '#E6E1D4', text: '#1F2A44' },
+  PAUSED: { background: '#B9C4CC', text: '#1F2A44' },
+} as const;

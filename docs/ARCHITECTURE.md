@@ -54,7 +54,7 @@
 | Elemento | Estado |
 |---|---|
 | Raíz | **Monorepo git** conectado a `https://github.com/JLowZ/The-Life-Game`. `main` + rama `feature/fases-1-a-6-base` (Fases 1–6, subida a GitHub). Harness (`CLAUDE.md`, `docs/`, `.claude/rules/`), `LICENSE`, `.gitignore`, `.gitattributes`, `app/` y `backend/`. |
-| `app/` | **Fases 3 a 7 hechas:** TypeScript estricto + Expo Router (SDK 58, RN 0.88.1, React 19.3.0). SQLite (migraciones `001` y `002`), SecureStore, Zustand, Jest y ESLint. Registro y sesión locales, HUD, hábitos, desafíos y misiones secundarias. Siguiente: Fases 8 y 9 (`docs/NEXT_STEPS.md`). |
+| `app/` | **Fases 3 a 9 hechas y probadas:** TypeScript estricto + Expo Router (SDK 58, RN 0.88.1, React 19.3.0). SQLite (migraciones `001` y `002`), SecureStore, Zustand, Jest y ESLint. Registro y sesión locales, HUD, hábitos, desafíos, misiones secundarias, cierre de jornada y Mapa. Siguiente: `docs/NEXT_STEPS.md`. |
 | `backend/` | Dependencias instaladas. Sin scripts ni entrada (Fase 2, después de la entrega, P-57). |
 
 ## 4. Frontend (`app/`)
@@ -68,19 +68,20 @@ app/src/
 │   ├── (auth)/               welcome, login, register, onboarding (asistente de registro, R-34)
 │   ├── (tabs)/               _layout (HUD como cabecera + reconciliación), index, map, challenges, shop
 │   ├── settings.tsx          Ajustes (P-61)
-│   ├── habits.tsx            Mis hábitos (pasa al Mapa en la Fase 9)
+│   ├── habits.tsx            lista de hábitos (sin enlace desde la Fase 9: "Mis hábitos" vive en el Mapa)
 │   └── habit-form.tsx        crear/editar hábito (?id= para editar)
 ├── screens/                  composición de cada pantalla
 ├── components/               presentacionales (PixelButton, Hud, HeartsBar, XpBar, OccurrenceCard,
-│                             ChallengeCard, MissionModal…). HudHeader es el único contenedor.
+│                             ChallengeCard, MissionModal, MapCalendar, DaySummaryCard, ScheduleTable…).
+│                             HudHeader es el único contenedor.
 ├── state/                    Zustand: useSessionStore, usePlayerStore, useHabitsStore,
 │                             useChallengesStore, useRegistrationDraftStore (solo memoria)
 ├── services/                 casos de uso (una transacción cada uno) + deps.ts / platformDeps.ts
 ├── domain/                   reglas puras: auth, onboarding, gameDay, level, hp, habits, schedule,
-│                             habitMarking, challenges, missions, categories, types
+│                             habitMarking, challenges, missions, dayClose, calendar, categories, types
 ├── database/                 la única capa con SQL: migrate, migrations/, repositories/, transaction,
 │                             secureSession, preferencesStore (kv-store), testing/
-├── content/                  textos: authTexts (aviso de privacidad), habitTexts, challengeTexts
+├── content/                  textos: authTexts (aviso de privacidad), habitTexts, challengeTexts, dayTexts
 └── config/                   game.ts (R-21), audio.ts, theme.ts
 ```
 
@@ -302,6 +303,7 @@ El reloj `now` se **inyecta** siempre en el dominio, para poder probarlo.
 | Fecha | Cambio |
 |---|---|
 | 2026-11-25 | Versión inicial (Fase 0). |
+| 2026-11-28 | Fases 8 y 9: `dayCloseService` (cierre manual y automático, deshacer), `mapService`; la reconciliación cierra primero las jornadas pendientes, va en cola y trata la primera llamada tras arrancar como apertura (R-37). |
 | 2026-11-27 | §3, §4.1–4.3 y §4.8 actualizados con la estructura real de las Fases 3 a 7. |
 | 2026-11-27 | Fase 7: `challengeService` (crear, completar, gracia y vencimiento), `missionService`, `reconciliationService` (al abrir, al volver al primer plano y al entrar en Inicio/Desafíos) y `ledgerEffects` (movimientos de Hojas, XP y HP compartidos). |
 | 2026-11-27 | Fase 6: ocurrencias con horizonte de 0 días (R-26); servicios `habitService` y `occurrenceService`; reloj inyectado en los servicios (`services/deps.ts`). |

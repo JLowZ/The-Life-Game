@@ -1,3 +1,4 @@
+import { isDayClosed } from '@/database/repositories/dailySummariesRepository';
 import { listActiveHabits } from '@/database/repositories/habitsRepository';
 import {
   countNonAbandonedMissions,
@@ -74,6 +75,7 @@ export async function acceptMission(deps: AppDeps, userId: string, input: Missio
       input,
       activeOrCompletedToday: await countNonAbandonedMissions(deps.db, userId, gameDate),
       hpHalfUnits: profile.hpHalfUnits,
+      dayClosed: await isDayClosed(deps.db, userId, gameDate),
     });
     if (!decision.ok) {
       if (decision.error === 'INVALID') return { ok: false, error: 'Revisa los campos marcados.', fields: decision.fields };
@@ -103,7 +105,13 @@ export async function completeMission(deps: AppDeps, userId: string, missionId: 
     const mission = await findMission(deps.db, userId, missionId);
     const profile = await getPlayerProfile(deps.db, userId);
     if (!mission || !profile) return { ok: false, error: 'No se encontró la misión.' };
-    const decision = decideCompleteMission({ mission, currentGameDate: getGameDate(now), hpHalfUnits: profile.hpHalfUnits });
+    const currentGameDate = getGameDate(now);
+    const decision = decideCompleteMission({
+      mission,
+      currentGameDate,
+      hpHalfUnits: profile.hpHalfUnits,
+      dayClosed: await isDayClosed(deps.db, userId, currentGameDate),
+    });
     if (!decision.ok) return { ok: false, error: MISSION_ERROR_MESSAGES[decision.error] };
     if (!(await finishMission(deps.db, { id: mission.id, to: 'COMPLETED', now: nowIso }))) {
       return { ok: false, error: MISSION_ERROR_MESSAGES.NOT_ACCEPTED };

@@ -2,6 +2,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { DaySummaryCard } from '@/components/DaySummaryCard';
 import { OccurrenceCard } from '@/components/OccurrenceCard';
 import { PixelButton } from '@/components/PixelButton';
 import { UndoBar } from '@/components/UndoBar';
@@ -12,8 +13,10 @@ import { formatGameDateShort } from '@/content/habitTexts';
 import { timeLeftMs } from '@/domain/challenges';
 import type { MarkOutcome } from '@/domain/habitMarking';
 import type { HabitCategory } from '@/domain/types';
+import { closeGameDay, undoDayClose } from '@/services/dayCloseService';
 import { listHabitCategories } from '@/services/onboardingService';
 import { markOccurrence, undoMark } from '@/services/occurrenceService';
+import { loadPurpose } from '@/services/profileService';
 import { reconcile } from '@/services/reconciliationService';
 import { useAppDeps } from '@/services/useAppDeps';
 import { useChallengesStore } from '@/state/useChallengesStore';
@@ -23,13 +26,18 @@ import { useSessionStore } from '@/state/useSessionStore';
 
 const TICK_MS = 500;
 const ZERO_HP_REASON = 'Sin vidas no puedes marcar hábitos. Completa un desafío de recuperación.';
+const DAY_FINISHED_REASON = 'Jornada finalizada. Si te equivocaste, puedes deshacerlo hasta las 04:00.';
 
-/** Inicio: Misiones del día (RN-DAY-08) con marcado y deshacer en 10 s (RN-DAY-07). */
+/**
+ * Inicio: Misiones del día (RN-DAY-08) con marcado y deshacer en 10 s (RN-DAY-07)
+ * y Día Finalizado con su mensaje de cierre y deshacer hasta las 04:00 (RN-CLOSE-06, RN-CLOSE-09).
+ */
 export function HomeScreen() {
   const deps = useAppDeps();
   const userId = useSessionStore((s) => s.user?.id);
   const gameDate = useHabitsStore((s) => s.gameDate);
   const occurrences = useHabitsStore((s) => s.todayOccurrences);
+  const todaySummary = useHabitsStore((s) => s.todaySummary);
   const hpHalfUnits = usePlayerStore((s) => s.profile?.hpHalfUnits);
   const activeChallenges = useChallengesStore((s) => s.active);
 
@@ -38,6 +46,9 @@ export function HomeScreen() {
   const [lastMarkedId, setLastMarkedId] = useState<string | null>(null);
   const [undoing, setUndoing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmingClose, setConfirmingClose] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [purpose, setPurpose] = useState<string | null>(null);
   const [, setTick] = useState(0);
 
   // Recarga al entrar en la pestaña: si pasaron las 04:00, cambia la jornada.
@@ -51,6 +62,10 @@ export function HomeScreen() {
   useEffect(() => {
     listHabitCategories(deps.db).then(setCategories).catch(() => undefined);
   }, [deps.db]);
+
+  useEffect(() => {
+    if (userId) loadPurpose(deps.db, userId).then(setPurpose).catch(() => undefined);
+  }, [deps.db, userId]);
 
   // Cuenta atrás del aviso de deshacer.
   const lastMarked = occurrences.find((o) => o.id === lastMarkedId && o.status !== 'PENDING');
@@ -99,8 +114,39 @@ export function HomeScreen() {
     }
   }
 
+  async function handleCloseDay() {
+    setClosing(true);
+    setError(null);
+    try {
+      const result = await closeGameDay(deps, currentUserId);
+      if (!result.ok) setError(result.error);
+      setConfirmingClose(false);
+      setLastMarkedId(null);
+      await reconcile(deps, currentUserId, { appOpened: false });
+    } catch {
+      setError('No se pudo finalizar la jornada. Inténtalo de nuevo.');
+    } finally {
+      setClosing(false);
+    }
+  }
+
+  async function handleUndoClose() {
+    setClosing(true);
+    setError(null);
+    try {
+      const result = await undoDayClose(deps, currentUserId);
+      if (!result.ok) setError(result.error);
+      await reconcile(deps, currentUserId, { appOpened: false });
+    } catch {
+      setError('No se pudo deshacer el cierre. Inténtalo de nuevo.');
+    } finally {
+      setClosing(false);
+    }
+  }
+
   const categoryName = (id: string) => categories.find((c) => c.id === id)?.name ?? '';
-  const disabledReason = hpHalfUnits === 0 ? ZERO_HP_REASON : undefined;
+  const disabledReason = todaySummary ? DAY_FINISHED_REASON : hpHalfUnits === 0 ? ZERO_HP_REASON : undefined;
+  const pendingCount = occurrences.filter((o) => o.status === 'PENDING').length;
   const done = occurrences.filter((o) => o.status === 'COMPLETED').length;
   // RN-DES-16: Inicio también muestra el tiempo restante del desafío más próximo.
   const withDeadline = activeChallenges.filter((c) => c.deadlineAt !== null);
@@ -122,10 +168,24 @@ export function HomeScreen() {
               </Text>
             ) : null}
           </View>
-          <PixelButton label="Mis hábitos" variant="secondary" onPress={() => router.push('/habits')} />
         </View>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
+
+        {todaySummary ? (
+          <View style={styles.closeBlock}>
+            <DaySummaryCard summary={todaySummary} purpose={purpose} title="Día Finalizado" />
+            {todaySummary.closeSource === 'MANUAL' ? (
+              <PixelButton
+                label="Deshacer Día Finalizado"
+                variant="secondary"
+                onPress={handleUndoClose}
+                loading={closing}
+                accessibilityHint="Reabre la jornada; puedes hacerlo hasta las 04:00"
+              />
+            ) : null}
+          </View>
+        ) : null}
 
         {activeChallenges.length > 0 ? (
           <View style={styles.challengesCard}>
@@ -143,8 +203,8 @@ export function HomeScreen() {
         {occurrences.length === 0 ? (
           <View style={styles.emptyCard}>
             <Text style={styles.empty}>Sin actividades programadas</Text>
-            <Text style={styles.hint}>Crea un hábito y asígnalo a días para verlo aquí.</Text>
-            <PixelButton label="Crear un hábito" onPress={() => router.push('/habit-form')} />
+            <Text style={styles.hint}>Crea tus hábitos y asígnalos a días en el Mapa.</Text>
+            <PixelButton label="Ir al Mapa" onPress={() => router.push('/map')} />
           </View>
         ) : (
           occurrences.map((occurrence) => (
@@ -159,6 +219,33 @@ export function HomeScreen() {
             />
           ))
         )}
+
+        {!todaySummary ? (
+          confirmingClose ? (
+            <View style={styles.confirmCard}>
+              <Text style={styles.challengesText}>
+                {pendingCount > 0
+                  ? `¿Finalizar la jornada? ${pendingCount} ${pendingCount === 1 ? 'hábito pendiente quedará' : 'hábitos pendientes quedarán'} como no ${pendingCount === 1 ? 'cumplido' : 'cumplidos'} y ${pendingCount === 1 ? 'generará su desafío' : 'generarán sus desafíos'}.`
+                  : '¿Finalizar la jornada? Podrás deshacerlo hasta las 04:00.'}
+              </Text>
+              <View style={styles.confirmActions}>
+                <View style={styles.flex}>
+                  <PixelButton label="Finalizar" onPress={handleCloseDay} loading={closing} />
+                </View>
+                <View style={styles.flex}>
+                  <PixelButton label="Cancelar" variant="secondary" onPress={() => setConfirmingClose(false)} disabled={closing} />
+                </View>
+              </View>
+            </View>
+          ) : (
+            <PixelButton
+              label="Día Finalizado"
+              variant="secondary"
+              onPress={() => setConfirmingClose(true)}
+              accessibilityHint="Cierra la jornada de hoy y muestra tu resumen"
+            />
+          )
+        ) : null}
       </ScrollView>
 
       {showUndo && lastMarked ? (
@@ -204,5 +291,14 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   challengesText: { color: colors.navy, fontSize: 14, fontWeight: 'bold', lineHeight: 20 },
+  closeBlock: { gap: spacing.sm },
+  confirmCard: {
+    backgroundColor: colors.surface,
+    borderColor: colors.navy,
+    borderWidth: border.width,
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
+  confirmActions: { flexDirection: 'row', gap: spacing.sm },
   undoWrapper: { position: 'absolute', left: spacing.md, right: spacing.md, bottom: spacing.md },
 });

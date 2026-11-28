@@ -120,3 +120,16 @@ export async function finishMission(
   );
   return result.changes === 1;
 }
+
+/**
+ * RN-MIS-06, P-58: las misiones aceptadas de jornadas ya terminadas pasan a
+ * ABANDONED, sin coste. Se hace en la reconciliación (fecha < hoy), no en
+ * Día Finalizado: así deshacer el cierre manual las deja intactas (INT-19).
+ */
+export async function abandonStaleMissions(db: SqlDatabase, userId: string, today: GameDate): Promise<number> {
+  const result = await db.runAsync(
+    "UPDATE user_missions SET status = 'ABANDONED' WHERE user_id = ? AND status = 'ACCEPTED' AND game_date < ?",
+    [userId, today],
+  );
+  return result.changes;
+}

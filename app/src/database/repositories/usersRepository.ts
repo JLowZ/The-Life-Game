@@ -149,3 +149,15 @@ export async function completeUserOnboarding(
   );
   return result.changes === 1;
 }
+
+/** Fecha de alta: la primera jornada que la reconciliación puede cerrar. */
+export async function findUserCreatedAt(db: SqlDatabase, userId: string): Promise<string | null> {
+  const row = await db.getFirstAsync<{ created_at: string }>('SELECT created_at FROM users WHERE id = ?', [userId]);
+  return row?.created_at ?? null;
+}
+
+/** Propósito del onboarding: personaliza el mensaje de cierre ("la meta", P-34). */
+export async function findUserPurpose(db: SqlDatabase, userId: string): Promise<string | null> {
+  const row = await db.getFirstAsync<{ purpose: string | null }>('SELECT purpose FROM users WHERE id = ?', [userId]);
+  return row?.purpose ?? null;
+}

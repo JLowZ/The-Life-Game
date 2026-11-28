@@ -89,3 +89,15 @@ export async function getPlayerProfile(db: SqlDatabase, userId: string): Promise
   );
   return row ? toPlayerProfile(row) : null;
 }
+
+/** Racha y última jornada cerrada (RN-CLOSE-07; base de la reconciliación). */
+export async function updateCloseState(
+  db: SqlDatabase,
+  params: { userId: string; perfectStreak: number; lastClosedGameDate: string | null; now: string },
+): Promise<void> {
+  await db.runAsync(
+    `UPDATE player_profiles SET perfect_streak = ?, last_closed_game_date = ?, updated_at = ?, version = version + 1
+      WHERE user_id = ?`,
+    [params.perfectStreak, params.lastClosedGameDate, params.now, params.userId],
+  );
+}

@@ -40,7 +40,12 @@ export function OccurrenceCard({
       <View style={styles.header}>
         <Text style={styles.name}>{occurrence.habitName}</Text>
         {!pending ? (
-          <Text style={[styles.status, occurrence.status === 'COMPLETED' ? styles.ok : styles.missed]}>
+          <Text
+            style={[
+              styles.status,
+              occurrence.status === 'COMPLETED' ? styles.ok : occurrence.status === 'PAUSED' ? styles.paused : styles.missed,
+            ]}
+          >
             {STATUS_LABELS[occurrence.status]}
           </Text>
         ) : null}
@@ -95,6 +100,7 @@ const styles = StyleSheet.create({
   status: { fontSize: 14, fontWeight: 'bold' },
   ok: { color: colors.leaf },
   missed: { color: colors.error },
+  paused: { color: colors.textMuted },
   detail: { color: colors.text, fontSize: 14 },
   rewards: { color: colors.textMuted, fontSize: 13 },
   reason: { color: colors.error, fontSize: 13 },

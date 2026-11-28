@@ -8,9 +8,11 @@ import {
   listSchedulesForHabit,
   updateHabit as updateHabitRow,
 } from '@/database/repositories/habitsRepository';
+import { getPlayerProfile } from '@/database/repositories/playerProfilesRepository';
 import { runInTransaction } from '@/database/transaction';
 import { getGameDate } from '@/domain/gameDay';
 import { validateHabit, type HabitField, type HabitInput } from '@/domain/habits';
+import { isZeroHp, ZERO_HP_SCHEDULE_MESSAGE } from '@/domain/hp';
 import { addDays, validateSchedule, type ScheduleInput } from '@/domain/schedule';
 import type { GameDate, Habit, HabitSchedule } from '@/domain/types';
 
@@ -90,13 +92,20 @@ export async function createHabit(
   const habitId = deps.crypto.randomUUID();
   const nowIso = now.toISOString();
 
-  await runInTransaction(deps.db, async () => {
+  return runInTransaction(deps.db, async (): Promise<HabitSaveResult> => {
+    if (await isBlockedAtZeroHp(deps, userId)) return { ok: false, errors: { schedule: ZERO_HP_SCHEDULE_MESSAGE } };
     await insertHabit(deps.db, { ...form.habit.value, id: habitId, userId, now: nowIso });
     await insertScheduleRows(deps, habitId, form.schedule, today, nowIso);
     // Si está programado para hoy, aparece ya en las Misiones del día.
     await ensureOccurrencesForDate(deps, userId, today);
+    return { ok: true, habitId };
   });
-  return { ok: true, habitId };
+}
+
+/** RN-NAV-04: a 0 HP no se programa (crear o editar la programación). */
+async function isBlockedAtZeroHp(deps: AppDeps, userId: string): Promise<boolean> {
+  const profile = await getPlayerProfile(deps.db, userId);
+  return profile !== null && isZeroHp(profile.hpHalfUnits);
 }
 
 /**
@@ -119,6 +128,7 @@ export async function updateHabit(
   const nowIso = now.toISOString();
 
   return runInTransaction(deps.db, async (): Promise<HabitSaveResult> => {
+    if (await isBlockedAtZeroHp(deps, userId)) return { ok: false, errors: { schedule: ZERO_HP_SCHEDULE_MESSAGE } };
     const updated = await updateHabitRow(deps.db, { ...form.habit.value, id: habitId, userId, now: nowIso });
     if (!updated) return { ok: false, errors: { name: 'Este hábito ya no existe.' } };
     await closeSchedulesFrom(deps.db, { habitId, today, yesterday: addDays(today, -1), now: nowIso });

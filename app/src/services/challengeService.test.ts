@@ -204,12 +204,15 @@ describe('vencimiento y recuperación (RN-DES-07, RN-HP-03..06, ESC-11, ESC-20, 
     expect(await hp(deps, userId)).toBe(19);
     expect(await completeChallenge(deps, userId, challenge.id)).not.toEqual({ ok: true }); // RN-DES-08
     const active = await listActiveChallenges(deps.db, userId);
-    expect(active.map((c) => c.kind)).toEqual(['RECOVERY']);
+    // Desde la Fase 9 el sábado y el domingo se cierran solos: sus 2 desafíos siguen en plazo.
+    expect(active.filter((c) => c.kind === 'MISSED_HABIT').map((c) => c.sourceGameDate)).toEqual(['2026-11-28', '2026-11-29']);
+    const recovery = active.find((c) => c.kind === 'RECOVERY');
+    if (!recovery) throw new Error('sin recuperación');
 
     // Reconciliar otra vez no vuelve a restar (INT-02) y completar la recuperación devuelve la unidad.
     await reconcile(deps, userId, { appOpened: true });
     expect(await hp(deps, userId)).toBe(19);
-    expect(await completeChallenge(deps, userId, active[0]!.id)).toEqual({ ok: true });
+    expect(await completeChallenge(deps, userId, recovery.id)).toEqual({ ok: true });
     expect(await hp(deps, userId)).toBe(20);
     await expectLedgersMatchProfile(deps, userId);
   });
